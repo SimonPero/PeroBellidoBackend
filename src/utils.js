@@ -1,6 +1,7 @@
 import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
+import { connect } from "mongoose";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -19,12 +20,10 @@ export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
 //------
-import { connect } from "mongoose";
+
 export async function connectMongo() {
   try {
-    await connect(
-      /* PONER TU STRING ENTERO ACA */
-      "mongodb+srv://simonraulpero:AJP46qHtMUByH89E@cluster0.xrhccle.mongodb.net/"
+    await connect("mongodb+srv://simonraulpero:AJP46qHtMUByH89E@cluster0.xrhccle.mongodb.net/ecommerce"
     );
     console.log("plug to mongo!");
   } catch (e) {
@@ -33,5 +32,5 @@ export async function connectMongo() {
   }
 }
 
-//----------------SOCKET------------------------------
+
 

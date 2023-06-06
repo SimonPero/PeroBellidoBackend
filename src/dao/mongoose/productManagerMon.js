@@ -32,7 +32,7 @@ export default class ProductManagerMon {
 
     async getProductById(id) {
         try {
-            const product = await Product.findOne({ id }).lean();
+            const product = await Product.findById(id);
             return product || "Error: producto no encontrado";
         } catch (error) {
             console.error('Error al obtener el producto:', error);

@@ -16,7 +16,7 @@ export default class CartsManager {
 
   async getCartById(cartId) {
     try {
-      const cart = await Cart.findOne({ cartId }).populate('products.idProduct');
+      const cart = await Cart.findOne({ cartId }).populate('products');
       if (cart) {
         return cart;
       } else {
@@ -52,7 +52,7 @@ export default class CartsManager {
 
   async getAllCarts() {
     try {
-      const carts = await Cart.find().populate('products.idProduct');
+      const carts = await Cart.find().populate('products');
       return carts;
     } catch (error) {
       console.error(`Error al obtener todos los carts: ${error}`);
