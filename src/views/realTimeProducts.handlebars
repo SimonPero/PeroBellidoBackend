@@ -1,0 +1,66 @@
+<div >
+  <section >
+    <ul id="ejemplo">
+      {{#each products}}
+      <li id="{{#if this._id}}{{this._id}}{{else}}{{this.id}}{{/if}}">
+        <h3>{{this.title}}</h3>
+        <p>ID: {{#if this._id}}{{this._id}}{{else}}{{this.id}}{{/if}}</p>
+        <p>Descripción:{{this.description}}</p>
+        <p>Precio: {{this.price}}</p>
+        <p>Código: {{this.code}}</p>
+        <p>Stock: {{this.stock}}</p>
+        <p>Categoría: {{this.category}}</p>
+        <img src="/public/{{this.picture}}" alt="">
+        <button class="btn-delete" onclick="deleteProduct('{{#if this._id}}{{this._id}}{{else}}{{this.id}}{{/if}}')">Eliminar</button>
+      </li>
+      {{/each}}
+    </ul>
+  </section>
+ <section>
+  <form id="form-products" style="margin: auto" enctype="multipart/form-data">
+    <div style="margin-bottom: 16px">
+      <div>
+        <label for="title">Titulo:</label>
+        <br />
+        <input value="" type="text"  id="form-title" style="margin-bottom: 16px" class="form-control" />
+      </div>
+      <div>
+        <label for="description">Descripción:</label>
+        <br />
+        <input value="" type="text"  id="form-description" style="margin-bottom: 16px" class="form-control" />
+      </div>
+      <div>
+        <label for="price">Precio:</label>
+        <br />
+        <input value="" type="number"  id="form-price" style="margin-bottom: 16px" step="1" class="input-file" />
+      </div>
+      <div>
+        <label for="code">Código:</label>
+        <br />
+        <input value="" type="text"  id="form-code" style="margin-bottom: 16px" class="input-file" />
+      </div>
+      <div>
+        <label for="stock">Stock:</label>
+        <br />
+        <input value="" type="number"  id="form-stock" style="margin-bottom: 16px" step="1" />
+      </div>
+      <div>
+        <label for="category">Categoría:</label>
+        <br />
+        <input value="" type="text"  id="form-category" style="margin-bottom: 16px" />
+      </div>
+      <div>
+        <label for="file">Archivo:</label>
+        <br />
+        <input value="" type="file" name="file" id="form-file" style="margin-bottom: 16px" />
+      </div>
+      <div style="display: flex; justify-content: center; align-items: center">
+        <input type="submit" value="Crear producto" id="submit-button" />
+      </div>
+    </div>
+  </form>
+</section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="public/js/index.js"></script>
