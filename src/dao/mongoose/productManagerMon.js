@@ -1,4 +1,4 @@
-//mongoose
+//mongoosee
 import { Product } from "../models/product.model.js";
 
 export default class ProductManagerMon {
