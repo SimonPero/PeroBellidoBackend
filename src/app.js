@@ -88,7 +88,7 @@ app.use("/api/products/", productsRouter);
 app.use("/api/carts/", cartsRouter);
 
 //
-app.use("/", homeRouter);
+app.use("/products", homeRouter);
 app.use("/realtimeproducts", realTimeProdsRouters)
 
 //

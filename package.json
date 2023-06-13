@@ -21,6 +21,7 @@
     "http-server": "^14.1.1",
     "joi": "^17.9.2",
     "mongoose": "^7.2.2",
+    "mongoose-paginate-v2": "^1.7.1",
     "multer": "^1.4.5-lts.1",
     "path": "^0.12.7",
     "socket-server": "^0.0.4",
@@ -30,5 +31,8 @@
     "sweetalert2": "^11.4.8",
     "utils": "^0.2.2",
     "websocket": "^1.0.34"
+  },
+  "devDependencies": {
+    "@types/mongoose": "^5.11.97"
   }
 }

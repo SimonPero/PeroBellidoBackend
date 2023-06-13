@@ -10,6 +10,7 @@ const inputStock = document.getElementById("form-stock")
 const inputCategory = document.getElementById("form-category")
 
 function deleteProduct(id) {
+  console.log(id)
   socket.emit("delete-product", id)
 }
 // Handlebars template
@@ -40,6 +41,7 @@ socket.on("product_deleted", (id) => {
   if (li) {
     li.remove();
   }
+  
 });
 
 const renderEjemplo = (ejemplos) => {

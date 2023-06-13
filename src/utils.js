@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { connect } from "mongoose";
 
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, "/public/images"));
@@ -31,6 +32,3 @@ export async function connectMongo() {
     throw "can not connect to the db";
   }
 }
-
-
-

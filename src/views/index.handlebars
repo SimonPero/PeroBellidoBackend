@@ -1,15 +1,49 @@
-<ul>
-  {{#each products}}
-  <li id="{{this._id}}">
-    <h3>{{this.title}}</h3>
-    <p>ID: {{this._id}}</p>
-    <p>Descripción:{{this.description}}</p>
-    <p>Precio: {{this.price}}</p>
-    <p>Código: {{this.code}}</p>
-    <p>Stock: {{this.stock}}</p>
-    <p>Categoría: {{this.category}}</p>
-    <img src="/public/{{this.picture}}" alt="">
+<div>
+  {{!-- totalDocs:{{pagination.totalDocs}}
+  limit:{{pagination.limit}}
+  totalPages:{{pagination.totalPages}}
+  page:{{pagination.page}}
+  pagingCounter:{{pagination.pagingCounter}}
+  hasPrevPage:{{pagination.hasPrevPage}}
+  hasNextPage:{{pagination.hasNextPage}}
+  prevPage:{{pagination.prevPage}}
+  nextPage:{{pagination.nextPage}} --}}
 
-  </li>
-  {{/each}}
-</ul>
+  {{#if pagination.hasPrevPage}}
+  <a style='font-size: 20;'
+    href='/products?{{#if category}}category={{category}}&{{/if}}{{#if sort}}sort={{sort}}&{{/if}}page={{pagination.prevPage}}{{#if limit}}&limit={{limit}}{{/if}}'>←{{pagination.prevPage}}</a>
+  {{/if}}
+
+  <a style='font-size: 20;' href='#'>{{pagination.page}}</a>
+
+  {{#if pagination.hasNextPage}}
+  <a style='font-size: 20;'
+    href='/products?{{#if category}}category={{category}}&{{/if}}{{#if sort}}sort={{sort}}&{{/if}}page={{pagination.nextPage}}{{#if limit}}&limit={{limit}}{{/if}}'>→{{pagination.nextPage}}</a>
+  {{/if}}
+
+  {{#if products.length}}
+  <section class="container">
+    <ul>
+      {{#each products}}
+      <li id="{{this._id}}">
+        <h3>{{this.title}}</h3>
+        <p>Descripción:{{this.description}}</p>
+        <p>Precio: {{this.price}}</p>
+        <p>Stock: {{this.stock}}</p>
+        <p>Categoría: {{this.category}}</p>
+        <img src="/public/{{this.picture}}" alt="">
+       <button class="btn-agregar" onclick="handleAgregarButtonClick('{{this.id}}')">Agregar al carrito</button>
+       <button class="btn-detalles" onclick="handleVerDetallesClick('{{this._id}}')">Ver detalles</button>
+      </li>
+      {{/each}}
+    </ul>
+  </section>
+  {{else}}
+  <p>No products found.</p>
+  {{/if}}
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="public/js/productos.js"></script>

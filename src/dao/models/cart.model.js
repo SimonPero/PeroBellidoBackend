@@ -1,4 +1,3 @@
-//@ts-check
 import mongoose from 'mongoose';
 
 const cartSchema = new mongoose.Schema({
@@ -10,5 +9,10 @@ const cartSchema = new mongoose.Schema({
     },
   ],
 });
+
+// Modificar el método `getCartById` para utilizar populate en la consulta
+cartSchema.statics.getCartById = function (cartId) {
+  return this.findOne({ cartId }).populate('products.idProduct');
+};
 
 export const Cart = mongoose.model('Cart', cartSchema);
