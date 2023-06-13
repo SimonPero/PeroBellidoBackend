@@ -1,3 +1,34 @@
+// Get all category and sort links
+const categoryLinks = document.querySelectorAll(".category-link");
+const sortLinks = document.querySelectorAll(".sort-link");
+
+// Add event listeners to category links
+categoryLinks.forEach(link => {
+  link.addEventListener("click", e => {
+    e.preventDefault();
+    const category = link.getAttribute("data-category");
+    updateURLParams({ category });
+  });
+});
+
+// Add event listeners to sort links
+sortLinks.forEach(link => {
+  link.addEventListener("click", e => {
+    e.preventDefault();
+    const sort = link.getAttribute("data-sort");
+    updateURLParams({ sort });
+  });
+});
+
+// Function to update URL parameters and navigate to the new URL
+function updateURLParams(params) {
+  const url = new URL(window.location.href);
+  Object.entries(params).forEach(([key, value]) => {
+    url.searchParams.set(key, value);
+  });
+  window.location.href = url.toString();
+}
+
 async function handleAgregarButtonClick(liId,) {
     try {
         const response = await fetch(`api/carts/89692/product/${liId}`, {
