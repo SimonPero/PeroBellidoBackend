@@ -7,10 +7,13 @@ categoryLinks.forEach(link => {
   link.addEventListener("click", e => {
     e.preventDefault();
     const category = link.getAttribute("data-category");
-    updateURLParams({ category });
+    if (category === "todos") {
+      window.location.href = "http://localhost:8080/products";
+    } else {
+      updateURLParams({ category });
+    }
   });
 });
-
 // Add event listeners to sort links
 sortLinks.forEach(link => {
   link.addEventListener("click", e => {
@@ -53,3 +56,10 @@ async function handleVerDetallesClick(productId) {
     }
   }
   
+async function handleVerCartClick(cartId) {
+  try {
+    window.location.href = `products/carts/${cartId} `
+  } catch (error) {
+    console.log(`Error al obtener detalles del producto (${cartId}):`, error.message);
+  }
+}

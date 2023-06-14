@@ -84,10 +84,21 @@ homeRouter.get("/:productId", async (req, res) => {
   try {
     const id = req.params.productId;
     const product = await productManager.getProductById(id);
-    res.render("product-details", product );
+    res.render("product-details", product);
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
+  }
+});
+
+homeRouter.get("/carts/:cid", async (req, res) => {
+  try {
+    const id = req.params.cid;
+    const cart = await cartsManager.getCartById(id);
+    const plainCart = cart.toObject();
+    res.render("cart-product", { cart: plainCart }); 
+  } catch (error) {
+    console.log(error);
   }
 });
 
