@@ -1,0 +1,14 @@
+.container{
+    width: 100%;
+}
+.container ul{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.container ul li img{
+    width: 100px;
+    height: 100px;
+}
