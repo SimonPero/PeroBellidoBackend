@@ -63,7 +63,6 @@ export function iniPassport() {
         callbackURL: 'http://localhost:8080/api/session/githubcallback',
       },
       async (accesToken, _, profile, done) => {
-        console.log(profile);
         try {
           const res = await fetch('https://api.github.com/user/emails', {
             headers: {
