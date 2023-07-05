@@ -10,7 +10,7 @@ categoryLinks.forEach(link => {
       updateURLParams({ category });
   });
 });
-// Add event listeners to sort links
+// Add event listeners to sort linkss
 sortLinks.forEach(link => {
   link.addEventListener("click", e => {
     e.preventDefault();
