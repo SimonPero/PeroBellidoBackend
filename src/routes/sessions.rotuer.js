@@ -71,6 +71,11 @@ sessionRouter.get('/perfil', isUser, (req, res) => {
   return res.render('perfil', { user: user });
 });
 
+sessionRouter.get('/current', isUser, (req, res) => {
+  const user = req.session.user;
+  res.status(200).json({user})
+});
+
 sessionRouter.get('/administracion', isUser, isAdmin, (req, res) => {
   return res.send('datos super secretos clasificados sobre los nuevos ingresos a boca juniors');
 });
