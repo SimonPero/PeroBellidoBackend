@@ -1,6 +1,6 @@
 import express from "express";
 import session from 'express-session';
-import controlador from "./dao/controlador.js"
+import controlador from "./services/controlador.js"
 import { productsRouter } from "./routes/products.router.js";
 import { cartsRouter } from "./routes/carts.router.js";
 import { homeRouter } from "./routes/home.router.js";
@@ -10,17 +10,18 @@ import { __dirname, connectMongo, uploader } from "./utils.js";
 import { Server } from "socket.io";
 import { realTimeProdsRouters } from "./routes/realtimeprods.router.js";
 import { testSocketChatRouter } from "./routes/test.socket.router.chat.js";
-import { MsgModel } from "./dao/models/msgs.model.js"
+import { MsgModel } from "./models/msgs.model.js"
 import {sessionRouter} from './routes/sessions.rotuer.js'
 import { iniPassport } from './config/passport.config.js';
 import passport from 'passport';
 import MongoStore from 'connect-mongo';
+import envConfig from "./config/env.config.js";
 const useMongo = true; 
 
 const { productManager} = controlador(useMongo);
 
 const app = express();
-const port = 8080;
+const port = envConfig.port;
 
 // Create HTTP server r
 const httpServer = app.listen(port, () => {
@@ -33,7 +34,7 @@ connectMongo()
 //passport.
 app.use(
   session({
-    store: MongoStore.create({ mongoUrl: 'mongodb+srv://simonraulpero:AJP46qHtMUByH89E@cluster0.xrhccle.mongodb.net/ecommerce', ttl: 7200 }),
+    store: MongoStore.create({ mongoUrl: envConfig.mongoUrl, ttl: 7200 }),
     secret: 'un-re-secreto',
     resave: true,
     saveUninitialized: true,

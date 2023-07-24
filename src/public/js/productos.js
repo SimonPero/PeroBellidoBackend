@@ -28,7 +28,6 @@ function updateURLParams(params) {
   window.location.href = url.toString();
 }
 var cartId = '{{cart}}'
-console.log(cartId)
 async function handleAgregarButtonClick(liId) {
   try {
     

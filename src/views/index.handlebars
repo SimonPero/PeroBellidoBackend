@@ -23,26 +23,26 @@
         <li><a class="dropdown-item sort-link" href="#" data-sort="asc">Ascendente</a></li>
       </ul>
     </div>
-    <button class="btn-cart" data-cart-id="{{cart}}" onclick="handleVerCartClick('{{cart}}')">Ver carrito</button>
-    <a href="/api/session/perfil">bienvenido {{#if user.isAdmin}}{{user.email}}{{else}}{{user.firstName}}{{/if}}, revisa tu perfil</a>
+    <button class="btn-cart" data-cart-id="{{pagina.cart}}" onclick="handleVerCartClick('{{pagina.cart}}')">Ver carrito</button>
+    <a href="/api/session/perfil">bienvenido {{#if pagina.user.isAdmin}}{{pagina.user.email}}{{else}}{{pagina.user.firstName}}{{/if}}, revisa tu perfil</a>
   </header>
 
-  {{#if pagination.hasPrevPage}}
+  {{#if pagina.pagination.hasPrevPage}}
   <a style='font-size: 20;'
-    href='/products?{{#if category}}category={{category}}&{{/if}}{{#if sort}}sort={{sort}}&{{/if}}page={{pagination.prevPage}}{{#if limit}}&limit={{limit}}{{/if}}'>←{{pagination.prevPage}}</a>
+    href='/products?{{#if pagina.category}}category={{pagina.category}}&{{/if}}{{#if pagina.sort}}sort={{pagina.sort}}&{{/if}}page={{pagina.pagination.prevPage}}{{#if pagina.limit}}&limit={{pagina.limit}}{{/if}}'>←{{pagination.prevPage}}</a>
   {{/if}}
 
-  <a style='font-size: 20;' href='#'>{{pagination.page}}</a>
+  <a style='font-size: 20;' href='#'>{{pagina.pagination.page}}</a>
 
-  {{#if pagination.hasNextPage}}
+  {{#if pagina.pagination.hasNextPage}}
   <a style='font-size: 20;'
-    href='/products?{{#if category}}category={{category}}&{{/if}}{{#if sort}}sort={{sort}}&{{/if}}page={{pagination.nextPage}}{{#if limit}}&limit={{limit}}{{/if}}'>→{{pagination.nextPage}}</a>
+    href='/products?{{#if pagina.category}}category={{pagina.category}}&{{/if}}{{#if pagina.sort}}sort={{pagina.sort}}&{{/if}}page={{pagina.pagination.nextPage}}{{#if pagina.limit}}&limit={{pagina.limit}}{{/if}}'>→{{pagina.pagination.nextPage}}</a>
   {{/if}}
 
-  {{#if products.length}}
+  {{#if pagina.products.length}}
   <section class="container">
   <ul>
-    {{#each products}}
+    {{#each pagina.products}}
     <li>
       <h3>{{this.title}}</h3>
       <p>Descripción: {{this.description}}</p>

@@ -1,10 +1,11 @@
 import passport from 'passport';
 import local from 'passport-local';
 import { createHash, isValidPassword } from '../utils.js';
-import { UserModel } from '../dao/models/user.model.js';
-import controlador from "./../dao/controlador.js"
+import { UserModel } from '../models/user.model.js';
+import controlador from "../services/controlador.js"
 import fetch from 'node-fetch';
 import GitHubStrategy from 'passport-github2';
+import envConfig from './env.config.js';
 
 const useMongo = true
 const { cartsManager } = controlador(useMongo);
@@ -23,7 +24,7 @@ export function iniPassport() {
     'login',
     new LocalStrategy({ usernameField: 'email' }, async (username, password, done) => {
       try {
-        if (username === 'adminCoder@coder.com' && password === 'adminCod3r123') {
+        if (username === envConfig.adminName && password === envConfig.adminPassword) {
           const adminUser = {
             email: username,
             isAdmin: true,
