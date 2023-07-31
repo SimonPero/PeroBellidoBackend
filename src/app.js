@@ -1,6 +1,6 @@
 import express from "express";
 import session from 'express-session';
-import controlador from "./services/controlador.js"
+import controlador from "./DAO/classes/controlador.js"
 import { productsRouter } from "./routes/products.router.js";
 import { cartsRouter } from "./routes/carts.router.js";
 import { homeRouter } from "./routes/home.router.js";
@@ -10,7 +10,7 @@ import { __dirname, connectMongo, uploader } from "./utils.js";
 import { Server } from "socket.io";
 import { realTimeProdsRouters } from "./routes/realtimeprods.router.js";
 import { testSocketChatRouter } from "./routes/test.socket.router.chat.js";
-import { MsgModel } from "./models/msgs.model.js"
+import { MsgModel } from "./DAO/models/msgs.model.js"
 import {sessionRouter} from './routes/sessions.rotuer.js'
 import { iniPassport } from './config/passport.config.js';
 import passport from 'passport';
@@ -72,7 +72,6 @@ socketServer.on("connection", (socket) => {
   socket.on("delete-product", async (productId) => {
     try {
       console.log("Deleting product with ID:", productId);
-      console.log(await productManager.deleteProduct(productId));
       // Update product list after deleting a product
       socketServer.emit("product_deleted", productId);
     } catch (error) {

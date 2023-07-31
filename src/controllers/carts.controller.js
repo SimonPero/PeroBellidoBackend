@@ -1,4 +1,4 @@
-import controlador from "../services/controlador.js"
+import controlador from "../DAO/classes/controlador.js"
 const useMongo = true;
 const { cartsManager } = controlador(useMongo);
 
@@ -6,7 +6,6 @@ class CartsController {
     async addCart(req, res) {
         try {
             cart = await cartsManager.addCart()
-            console.log(cart)
             return res.json({
                 status: 'success',
                 payload:  {cart}
@@ -18,8 +17,9 @@ class CartsController {
     }
     async getCartById(req, res) {
         try {
-            const id = req.params.cid
-            const cart = await cartsManager.getCartById(id)
+            const CartId = req.params.cid
+
+            const cart = await cartsManager.getCartById(CartId)
             return res.json({
                 status: 'success',
                 payload: { cart }
@@ -58,7 +58,6 @@ class CartsController {
         try {
             const cartId = req.params.cid;
             const newProducts = req.body;
-            console.log(newProducts)
             await cartsManager.updateProductsOfCart(cartId, newProducts);
             return res.json({
                 status: 'success',

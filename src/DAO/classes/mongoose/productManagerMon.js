@@ -49,11 +49,8 @@ export default class ProductManagerMon {
   }
 
   async revision(productsData, user, category, limit, sort) {
-    console.log(user)
     try {
-      let a = await UserModel.findById(user._id)
-      console.log(a)
-      let cart = null;
+      let cart = 0;
       if (user && !user.isAdmin) {
         cart = user.cart
         return {
@@ -72,7 +69,7 @@ export default class ProductManagerMon {
           category,
           limit,
           sort,
-          cart: a.cart,
+          cart,
           user: user
         };
       } else {
@@ -102,7 +99,6 @@ export default class ProductManagerMon {
   }
 
   async revisionJson(productsData, category, limit, sort) {
-    console.log(user)
     try {
         return {
           products: productsData.products,

@@ -24,7 +24,7 @@
       </ul>
     </div>
     <button class="btn-cart" data-cart-id="{{pagina.cart}}" onclick="handleVerCartClick('{{pagina.cart}}')">Ver carrito</button>
-    <a href="/api/session/perfil">bienvenido {{#if pagina.user.isAdmin}}{{pagina.user.email}}{{else}}{{pagina.user.firstName}}{{/if}}, revisa tu perfil</a>
+    <a href="/api/session/perfil">bienvenido {{#if pagina.user.isAdmin}}{{else}}{{pagina.user.firstName}}{{/if}}, revisa tu perfil</a>
   </header>
 
   {{#if pagina.pagination.hasPrevPage}}

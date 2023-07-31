@@ -1,4 +1,4 @@
-import controlador from "../services/controlador.js"
+import controlador from "../DAO/classes/controlador.js"
 const useMongo = true;
 const { productManager, cartsManager } = controlador(useMongo);
 
@@ -32,7 +32,7 @@ class HomeController {
     async addProductToCart(req, res) {
         try {
             const productId = req.body.productId;
-            const cartId = req.params.cid || 89692;
+            const cartId = req.params.cid;
             const cartWithProduct = await cartsManager.addProductToCart(cartId, productId);
             return res.json({
                 status: 'success',

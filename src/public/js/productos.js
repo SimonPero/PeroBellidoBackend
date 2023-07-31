@@ -33,7 +33,6 @@ async function handleAgregarButtonClick(liId) {
     
     const cartButton = document.querySelector(".btn-cart");
     const cartId = cartButton.getAttribute("data-cart-id");
-    console.log(cartId,liId)
     const response = await fetch(`api/carts/${cartId}/product/${liId}`, {
       method: 'POST',
       headers: {
@@ -41,7 +40,6 @@ async function handleAgregarButtonClick(liId) {
       },
     });
     const data = await response.json();
-    console.log(data);
   } catch (error) {
     console.log(error);
   }

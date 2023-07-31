@@ -75,7 +75,6 @@ export default class CartsManager {
 
   async updateProductsOfCart(cartId, newProducts) {
     const cart = await Cart.findOne({ cartId });
-    console.log(cart, newProducts)
     if (!cart) {
       throw new Error("Carrito no encontrado");
     }

@@ -1,8 +1,8 @@
 import passport from 'passport';
 import local from 'passport-local';
 import { createHash, isValidPassword } from '../utils.js';
-import { UserModel } from '../models/user.model.js';
-import controlador from "../services/controlador.js"
+import { UserModel } from '../DAO/models/user.model.js';
+import controlador from "../DAO/classes/controlador.js"
 import fetch from 'node-fetch';
 import GitHubStrategy from 'passport-github2';
 import envConfig from './env.config.js';
@@ -87,7 +87,7 @@ export function iniPassport() {
               firstName: profile._json.name || profile._json.login || 'noname',
               lastName: 'nolast',
               isAdmin: false,
-              age: 13,
+              age: 0,
               password: "nopass",
               cart: await cartsManager.addCart(),
             };
@@ -100,7 +100,6 @@ export function iniPassport() {
           }
         } catch (e) {
           console.log('Error en auth github');
-          console.log(e);
           return done(e);
         }
       }
@@ -133,12 +132,10 @@ export function iniPassport() {
             password: createHash(password),
           };
           let userCreated = await UserModel.create(newUser);
-          console.log(userCreated);
           console.log('User Registration succesful');
           return done(null, userCreated);
         } catch (e) {
           console.log('Error in register');
-          console.log(e);
           return done(e);
         }
       }
@@ -149,7 +146,6 @@ export function iniPassport() {
     if (user.isAdmin) {
       // Asignar un ID temporal al usuario administrador solo para fines de serialización
       const temporaryId = generateTemporaryId();
-      console.log(temporaryId)
       done(null, temporaryId);
     } else {
       done(null, user._id);

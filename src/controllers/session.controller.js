@@ -1,3 +1,6 @@
+import UserDTO from "../DAO/DTOs/user.dto.js";
+import CurrentUserDTO from "../DAO/DTOs/currentUser.dto.js";
+
 class SessionController {
     redirectLogin(req, res) {
         res.redirect('/api/session/login');
@@ -15,7 +18,8 @@ class SessionController {
         if (!req.user) {
             return res.status(500).render('error', { error: 'something went wrong' });
         }
-        req.session.user = { _id: req.user._id, email: req.user.email, firstName: req.user.firstName, lastName: req.user.lastName, age: req.user.age, isAdmin: req.user.isAdmin, cart: req.user.cart };
+        const userDTO = new UserDTO(req.user);
+        req.session.user = userDTO;
         return res.redirect('/api/session/login');
     }
     async failRegister(req, res) {
@@ -28,7 +32,8 @@ class SessionController {
         if (!req.user) {
             return res.status(500).render('error', { error: 'invalid credentials' });
         }
-        req.session.user = { _id: req.user._id, email: req.user.email, firstName: req.user.firstName, lastName: req.user.lastName, isAdmin: req.user.isAdmin, rol: req.user.role };
+        const userDTO = new UserDTO(req.user);
+        req.session.user = userDTO;
         return res.redirect('/products');
     }
     async failLogin(req, res) {
@@ -67,6 +72,11 @@ class SessionController {
     sessionJson(req, res) {
         return res.send(JSON.stringify(req.session));
     }
+    async CurrentView (req, res)  {
+        const currentUserDTO = new CurrentUserDTO(req.user);
+        const user = currentUserDTO
+        res.status(200).json({user})
+      }
 }
 
 export const sessionController = new SessionController();

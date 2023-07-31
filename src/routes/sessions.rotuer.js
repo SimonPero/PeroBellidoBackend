@@ -25,10 +25,7 @@ sessionRouter.get('/logout', sessionController.logOut);
 
 sessionRouter.get('/perfil', isUser, sessionController.viewPerfil);
 
-sessionRouter.get('/current', isUser, (req, res) => {
-  const user = req.session.user;
-  res.status(200).json({ user })
-});
+sessionRouter.get('/current', isUser, sessionController.CurrentView);
 
 sessionRouter.get('/administracion', isUser, isAdmin, sessionController.viewAdmin);
 

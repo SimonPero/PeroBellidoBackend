@@ -1,4 +1,4 @@
-import controlador from "../services/controlador.js"
+import controlador from "../DAO/classes/controlador.js"
 const useMongo = true;
 const { productManager, cartsManager } = controlador(useMongo);
 
