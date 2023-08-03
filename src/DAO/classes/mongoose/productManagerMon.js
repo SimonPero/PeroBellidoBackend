@@ -1,5 +1,7 @@
 import { Product } from "../../models/product.model.js";
-import { UserModel } from "../../models/user.model.js";
+import { MongoClient } from 'mongodb';
+import envConfig from './../../../config/env.config.js'
+
 export default class ProductManagerMon {
 
   async getProducts(query, options, sort) {
@@ -100,28 +102,41 @@ export default class ProductManagerMon {
 
   async revisionJson(productsData, category, limit, sort) {
     try {
-        return {
-          products: productsData.products,
-          currentPage: productsData.currentPage,
-          pagination: {
-            totalPages: productsData.pagination.totalPages,
-            prevPage: productsData.pagination.prevPage || null,
-            nextPage: productsData.pagination.nextPage || null,
-            page: productsData.pagination.page,
-            hasPrevPage: productsData.pagination.hasPrevPage,
-            hasNextPage: productsData.pagination.hasNextPage,
-            prevLink: productsData.pagination.prevLink,
-            nextLink: productsData.pagination.nextLink,
-          },
-          category,
-          limit,
-          sort,
-        };
+      return {
+        products: productsData.products,
+        currentPage: productsData.currentPage,
+        pagination: {
+          totalPages: productsData.pagination.totalPages,
+          prevPage: productsData.pagination.prevPage || null,
+          nextPage: productsData.pagination.nextPage || null,
+          page: productsData.pagination.page,
+          hasPrevPage: productsData.pagination.hasPrevPage,
+          hasNextPage: productsData.pagination.hasNextPage,
+          prevLink: productsData.pagination.prevLink,
+          nextLink: productsData.pagination.nextLink,
+        },
+        category,
+        limit,
+        sort,
+      };
     } catch (error) {
       console.log(error)
     }
   }
 
+  async getRealTimeProducts() {
+    try {
+      const client = await MongoClient.connect(envConfig.mongoUrl);
+      const db = client.db();
+      const collection = db.collection("products");
+      const items = await collection.find({}).toArray();
+      client.close();
+      return items;
+    } catch (error) {
+      console.error('Error al obtener los productos:', error);
+      throw error;
+    }
+  }
   async addProduct(title, description, price, code, stock, category, fileData) {
     try {
       const existingProduct = await Product.findOne({ code });
@@ -149,7 +164,7 @@ export default class ProductManagerMon {
 
   async getProductById(id) {
     try {
-      const product = await Product.findById(id);
+      const product = await Product.findById(id).lean();
       return product || "Error: producto no encontrado";
     } catch (error) {
       console.error("Error al obtener el producto:", error);
@@ -159,7 +174,17 @@ export default class ProductManagerMon {
 
   async updateProduct(id, campo) {
     try {
-      const toUpdate = JSON.parse(campo);
+      let toUpdate;
+      if (typeof campo === "string") {
+        toUpdate = JSON.parse(campo);
+      } else {
+        toUpdate = campo;
+      }
+
+      if (toUpdate.stock < 0) {
+        toUpdate.stock = 0;
+      }
+
       await Product.findByIdAndUpdate(id, toUpdate, { new: true }).lean();
       return "Producto cambiado correctamente";
     } catch (error) {
@@ -167,7 +192,6 @@ export default class ProductManagerMon {
       return null;
     }
   }
-
   async deleteProduct(id) {
     try {
       const deletedProduct = await Product.findByIdAndDelete(id).lean();

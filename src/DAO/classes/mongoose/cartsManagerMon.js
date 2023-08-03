@@ -1,6 +1,11 @@
-import { Cart} from '../../models/cart.model.js';
 
+import { Cart } from '../../models/cart.model.js';
+import ProductManagerMon from './productManagerMon.js';
 import { Types } from 'mongoose';
+
+
+const  productManager = new ProductManagerMon()
+
 
 export default class CartsManager {
   async addCart() {
@@ -36,14 +41,19 @@ export default class CartsManager {
       if (!cart) {
         return 'Error: Cart no encontrado';
       }
-  
+      const product = await productManager.getProductById(productId)
+
       const existingProduct = cart.products.find((p) => new Types.ObjectId(p.idProduct).equals(new Types.ObjectId(productId)));
       if (existingProduct) {
-        existingProduct.quantity++;
+        if (product.stock > existingProduct.quantity) {
+          existingProduct.quantity++;
+        } else {
+          console.log('No se puede agregar el producto al carrito, el stock es cero.');
+        }
       } else {
         cart.products.push({ idProduct: productId, quantity: 1 });
       }
-  
+
       await cart.save();
       return 'Producto agregado al carrito con éxito.';
     } catch (error) {
@@ -109,7 +119,7 @@ export default class CartsManager {
     }
   }
 
-  async deleteAllProductsFromCart (cartId){
+  async deleteAllProductsFromCart(cartId) {
     // Buscar el carrito por su ID
     const cart = await Cart.findOne({ cartId });
     if (!cart) {
@@ -128,4 +138,5 @@ export default class CartsManager {
     } catch (error) {
       console.error(`Error al obtener todos los carts: ${error}`);
     }
-  }}
+  }
+}

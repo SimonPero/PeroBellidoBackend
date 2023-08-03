@@ -1,25 +1,9 @@
 //FRONT
 const socket = io();
-let correoDelUsuario = '';
+const user = document.querySelector(".user-name");
+const UserName = user.getAttribute("data-name-id");
+let correoDelUsuario = UserName;
 
-async function pedirEmail() {
-  const { value: nombre } = await Swal.fire({
-    title: 'Enter your mail',
-    input: 'text',
-    inputLabel: 'Your mail',
-    inputValue: '',
-    showCancelButton: false,
-    inputValidator: (value) => {
-      if (!value) {
-        return 'You need to write your mail!';
-      }
-    },
-  });
-
-  correoDelUsuario = nombre;
-}
-
-pedirEmail();
 
 //FRONT EMITE
 

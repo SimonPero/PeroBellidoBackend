@@ -27,10 +27,8 @@ function updateURLParams(params) {
   });
   window.location.href = url.toString();
 }
-var cartId = '{{cart}}'
 async function handleAgregarButtonClick(liId) {
   try {
-    
     const cartButton = document.querySelector(".btn-cart");
     const cartId = cartButton.getAttribute("data-cart-id");
     const response = await fetch(`api/carts/${cartId}/product/${liId}`, {

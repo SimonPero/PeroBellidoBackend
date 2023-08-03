@@ -87,8 +87,9 @@ export function iniPassport() {
               firstName: profile._json.name || profile._json.login || 'noname',
               lastName: 'nolast',
               isAdmin: false,
-              age: 0,
+              age: 13,
               password: "nopass",
+              github:true,
               cart: await cartsManager.addCart(),
             };
             let userCreated = await UserModel.create(newUser);

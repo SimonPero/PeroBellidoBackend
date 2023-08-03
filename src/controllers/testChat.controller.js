@@ -1,6 +1,7 @@
 class TestChatController {
     viewChat(req, res) {
-        return res.render("test-chat", {});
+        const user = req.session.user
+        return res.render("test-chat", {user});
     }
 }
 

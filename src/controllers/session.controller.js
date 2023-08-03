@@ -1,5 +1,8 @@
 import UserDTO from "../DAO/DTOs/user.dto.js";
 import CurrentUserDTO from "../DAO/DTOs/currentUser.dto.js";
+import controlador from "../DAO/classes/controlador.js"
+const useMongo = true;
+const { productManager} = controlador(useMongo);
 
 class SessionController {
     redirectLogin(req, res) {
@@ -59,12 +62,19 @@ class SessionController {
         }
     }
     viewPerfil(req, res) {
-        const user = req.session.user;
+        const currentUserDTO = new CurrentUserDTO(req.user);
+        const user = currentUserDTO
         return res.render('perfil', { user: user });
     }
-    viewAdmin(req, res) {
-        return res.send('datos super secretos clasificados sobre los nuevos ingresos a boca juniors');
+    async viewAdmin(req, res) {
+        try {
+            const products = await productManager.getRealTimeProducts()
+            return res.render("realTimeProducts", {products:products})
+        } catch (error) {
+            res.status(500).json({ succes: "false", msg: "Error", payload: {} });
+        }
     }
+
     gitHubLogin(req, res) {
         req.session.user = req.user;
         res.redirect('/products');
@@ -72,11 +82,6 @@ class SessionController {
     sessionJson(req, res) {
         return res.send(JSON.stringify(req.session));
     }
-    async CurrentView (req, res)  {
-        const currentUserDTO = new CurrentUserDTO(req.user);
-        const user = currentUserDTO
-        res.status(200).json({user})
-      }
 }
 
 export const sessionController = new SessionController();

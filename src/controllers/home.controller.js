@@ -1,4 +1,6 @@
 import controlador from "../DAO/classes/controlador.js"
+import TicketManagerMon from "../DAO/classes/mongoose/ticketManagerMon.js";
+const ticketManager = new TicketManagerMon()
 const useMongo = true;
 const { productManager, cartsManager } = controlador(useMongo);
 
@@ -9,6 +11,7 @@ class HomeController {
             const category = req.query.category;
             const sort = req.query.sort || "";
             const user = req.session.user;
+           
             let query = {};
             if (category) {
                 query.category = category;
@@ -21,7 +24,6 @@ class HomeController {
             };
             const productsData = await productManager.getProducts(query, options, sort);
             const pagina = await productManager.revision(productsData, user, category, limit,)
-            
             return res.render("index", { pagina })
 
         } catch (error) {
@@ -61,6 +63,17 @@ class HomeController {
             res.render("cart-product", { cart: plainCart });
         } catch (error) {
             console.log(error);
+        }
+    }
+    async purchase(req, res) {
+        const cart = req.params.cid;
+        const userName = req.session.user.firstName;
+        try {
+            await ticketManager.comprarProductos(cart, userName);
+            res.send("Compra exitosa"); // Otra lógica de respuesta adecuada
+        } catch (error) {
+            console.error("Error en la compra:", error);
+            res.status(500).send("Ha ocurrido un error en la compra");
         }
     }
 }

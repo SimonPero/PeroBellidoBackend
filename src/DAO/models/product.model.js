@@ -12,7 +12,7 @@ const productSchema = new mongoose.Schema({
   category: {
     type: String,
     validate: {
-      validator: function (value) {
+      validator: function (/** @type {string} */ value) {
         const validCategories = ['Ropa', 'Caramelos', 'Electronicos', 'Muebles', 'Pop'];
         const lowercaseValue = value.toLowerCase();
         return validCategories.some(category => category.toLowerCase() === lowercaseValue);
