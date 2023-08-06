@@ -1,8 +1,8 @@
 import UserDTO from "../DAO/DTOs/user.dto.js";
 import CurrentUserDTO from "../DAO/DTOs/currentUser.dto.js";
-import controlador from "../DAO/classes/controlador.js"
-const useMongo = true;
-const { productManager} = controlador(useMongo);
+import ProductManagerMon from "../services/productManagerMon.service.js";
+const productManager = new ProductManagerMon();
+
 
 class SessionController {
     redirectLogin(req, res) {

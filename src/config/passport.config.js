@@ -2,13 +2,14 @@ import passport from 'passport';
 import local from 'passport-local';
 import { createHash, isValidPassword } from '../utils.js';
 import { UserModel } from '../DAO/models/user.model.js';
-import controlador from "../DAO/classes/controlador.js"
+
 import fetch from 'node-fetch';
 import GitHubStrategy from 'passport-github2';
 import envConfig from './env.config.js';
+import CartsManager from '../services/cartsManagerMon.service.js';
+const cartsManager = new CartsManager()
 
-const useMongo = true
-const { cartsManager } = controlador(useMongo);
+
 const LocalStrategy = local.Strategy;
 
 function generateTemporaryId() {

@@ -1,6 +1,7 @@
-import { TicketModel } from "../../models/ticket.model.js";
-import CartsManager from "./cartsManagerMon.js";
-import ProductManagerMon from "./productManagerMon.js";
+
+import ProductManagerMon from "../DAO/classes/mongoose/productManagerMon.js";
+import CartsManager from "../DAO/classes/mongoose/cartsManagerMon.js";
+import { TicketModel } from "../DAO/models/ticket.model.js";
 const productManager = new ProductManagerMon()
 const cartManager = new CartsManager()
 export default class TicketManagerMon {
@@ -70,16 +71,26 @@ export default class TicketManagerMon {
             });
 
             const ticketDetails = await ticket.save(); // Guardar el ticket en la base de datos
-            console.log('Ticket generado con éxito:', ticketDetails);
             if (productsNotPurchased.length > 0) {
                 await this.notPurchasedProducts(cartId, productsNotPurchased, user);
             }
         } else {
-            console.log('No se realizó ninguna compra.');
+            const respuesta = { mensaje: "No se realizó ninguna compra" };
+            return(respuesta)
         }
 
-        await cartManager.updateProductsOfCart(cartId, productsNotPurchased.map((product) => ({ idProduct: product.idProduct, quantity: product.quantityNotPurchased })));
         await cartManager.deleteAllProductsFromCart(cartId);
+        await cartManager.updateProductsOfCart(cartId, productsNotPurchased.map((product) => ({ idProduct: product.idProduct, quantity: product.quantityNotPurchased })));
+
+        if (productsNotPurchased.length > 0) {
+            const respuesta = { mensaje: "Algunos objetos no han sido comprados" };
+            return(respuesta)
+        } else {
+            const respuesta = { mensaje: "Compra exitosa" };
+            return(respuesta)
+        }
+
+
     }
 
     async notPurchasedProducts(cartId, productsNotPurchased, purchaserName) {
@@ -93,9 +104,5 @@ export default class TicketManagerMon {
         });
 
         const notPurchasedTicketDetails = await notPurchasedTicket.save(); // Guardar el ticket de los productos no comprados en la base de datos
-
-        console.log(`--- Ticket de Productos No Comprados ---`);
-        console.log('Ticket generado con éxito:', notPurchasedTicketDetails);
-        console.log(`----------------`);
     }
 }

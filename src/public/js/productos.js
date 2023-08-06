@@ -7,7 +7,7 @@ categoryLinks.forEach(link => {
   link.addEventListener("click", e => {
     e.preventDefault();
     const category = link.getAttribute("data-category");
-      updateURLParams({ category });
+    updateURLParams({ category });
   });
 });
 // Add event listeners to sort linkss
@@ -46,13 +46,13 @@ async function handleAgregarButtonClick(liId) {
 
 
 async function handleVerDetallesClick(productId) {
-    try {
-      window.location.href = `/products/${productId}`;
-    } catch (error) {
-      console.log(`Error al obtener detalles del producto (${productId}):`, error.message);
-    }
+  try {
+    window.location.href = `/products/${productId}`;
+  } catch (error) {
+    console.log(`Error al obtener detalles del producto (${productId}):`, error.message);
   }
-  
+}
+
 async function handleVerCartClick(cart) {
   try {
     window.location.href = `products/carts/${cart} `

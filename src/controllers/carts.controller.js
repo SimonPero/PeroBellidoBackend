@@ -1,6 +1,7 @@
-import controlador from "../DAO/classes/controlador.js"
-const useMongo = true;
-const { cartsManager } = controlador(useMongo);
+
+import CartsManager from "../services/cartsManagerMon.service.js";
+
+const cartsManager= new CartsManager()
 
 class CartsController {
     async addCart(req, res) {

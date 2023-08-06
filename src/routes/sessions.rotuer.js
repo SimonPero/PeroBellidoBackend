@@ -5,7 +5,7 @@ import { sessionController } from '../controllers/session.controller.js';
 
 export const sessionRouter = express.Router();
 
-sessionRouter.get('/',isUser, sessionController.redirectLogin);
+sessionRouter.get('/', sessionController.redirectLogin);
 
 sessionRouter.get('/session',isUser, sessionController.getSession);
 

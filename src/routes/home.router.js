@@ -1,6 +1,6 @@
 import express from "express";
 import { homeController } from "../controllers/home.controller.js";
-import { isAdminDeny, isUser,isYourCart} from '../middlewares/middleswares.js';
+import { isAdminDeny, isUser, isYourCart } from '../middlewares/middleswares.js';
 export const homeRouter = express.Router();
 
 homeRouter.get("/", homeController.getProducts);

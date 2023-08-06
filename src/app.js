@@ -1,6 +1,5 @@
 import express from "express";
 import session from 'express-session';
-import controlador from "./DAO/classes/controlador.js"
 import { productsRouter } from "./routes/products.router.js";
 import { cartsRouter } from "./routes/carts.router.js";
 import { homeRouter } from "./routes/home.router.js";
@@ -16,9 +15,8 @@ import { iniPassport } from './config/passport.config.js';
 import passport from 'passport';
 import MongoStore from 'connect-mongo';
 import envConfig from "./config/env.config.js";
-const useMongo = true; 
-
-const { productManager} = controlador(useMongo);
+import ProductManagerMon from "./services/productManagerMon.service.js";
+const productManager = new ProductManagerMon()
 
 const app = express();
 const port = envConfig.port;
