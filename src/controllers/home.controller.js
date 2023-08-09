@@ -1,6 +1,7 @@
 import CartsManager from "../services/cartsManagerMon.service.js";
 import ProductManagerMon from "../services/productManagerMon.service.js";
 import TicketManagerMon from "../services/ticketManagerMon.service.js";
+import { generateUser } from "../utils.js";
 const cartsManager = new CartsManager()
 const productManager = new ProductManagerMon()
 const ticketManager = new TicketManagerMon()
@@ -72,13 +73,23 @@ class HomeController {
         const userName = req.session.user.firstName;
         try {
             const compra = await ticketManager.comprarProductos(cart, userName);
-            const compraRealizada= compra.mensaje
+            const compraRealizada = compra.mensaje
             res.send(compraRealizada);
         } catch (error) {
             console.error("Error en la compra:", error);
             res.status(500).send("Ha ocurrido un error en la compra");
         }
     }
+    async mockModule(req, res) {
+        try {
+            const users = [];
+            for (let i = 0; i < 100; i++) {
+                users.push(generateUser());
+            }
+            res.json({ status: "success", payload: users });
+        } catch (error) {
+            console.error("Error en la carga del mock:", error);
+        }
+    }
 }
-
 export const homeController = new HomeController();

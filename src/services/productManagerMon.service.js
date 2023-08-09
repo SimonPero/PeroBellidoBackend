@@ -17,6 +17,8 @@ export default class ProductManagerMon {
 
       const products = docs.map((doc) => doc.toObject({ getters: true }));
 
+      
+
       const currentPage = parseInt(options.page) || 1;
       const totalPages = rest.totalPages;
 
@@ -140,6 +142,14 @@ export default class ProductManagerMon {
   async addProduct(title, description, price, code, stock, category, fileData) {
     try {
       const existingProduct = await Product.findOne({ code });
+      if (!existingProduct) {
+        throw CustomError.createError({
+          name:"ProductsNotFoundError",
+          message:" no product was found",
+          cause:`no product with the CODE: ${code} was found`,
+          code:EErros.PRODUCT_NOT_FOUND_ERROR,
+        })
+      }
       if (existingProduct) {
         return "El código del producto ya está en uso";
       }
@@ -165,7 +175,18 @@ export default class ProductManagerMon {
   async getProductById(id) {
     try {
       const product = await Product.findById(id).lean();
-      return product || "Error: producto no encontrado";
+      if(product){
+        return product
+      } else {
+        if (!product) {
+          throw CustomError.createError({
+            name:"ProductNotFoundError",
+            message:" no product was found",
+            cause:`no product with the id: ${id} was found`,
+            code:EErros.PRODUCT_NOT_FOUND_ERROR,
+          })
+        }
+      }
     } catch (error) {
       console.error("Error al obtener el producto:", error);
       return null;
@@ -195,6 +216,18 @@ export default class ProductManagerMon {
   async deleteProduct(id) {
     try {
       const deletedProduct = await Product.findByIdAndDelete(id).lean();
+      if(deletedProduct){
+        return "eliminado correctamente"
+      } else {
+        if (!deletedProduct) {
+          throw CustomError.createError({
+            name:"ProductsNotFoundError",
+            message:" no product was found",
+            cause:`no product with the id: ${id} was found`,
+            code:EErros.PRODUCT_NOT_FOUND_ERROR,
+          })
+        }
+      }
       return deletedProduct ? "Eliminado correctamente" : "Esta ID no existe";
     } catch (error) {
       console.error("Error al eliminar el producto:", error);

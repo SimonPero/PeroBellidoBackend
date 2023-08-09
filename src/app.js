@@ -15,6 +15,7 @@ import { iniPassport } from './config/passport.config.js';
 import passport from 'passport';
 import MongoStore from 'connect-mongo';
 import envConfig from "./config/env.config.js";
+import errorHandler  from "./middlewares/errors.js"
 import ProductManagerMon from "./services/productManagerMon.service.js";
 const productManager = new ProductManagerMon()
 
@@ -114,6 +115,7 @@ app.use("/test-chat", testSocketChatRouter);
 
 //
 app.use("/api/session", sessionRouter)
+app.use(errorHandler)
 app.use("/", (req, res) => {
   return res.redirect('/api/session');
 });

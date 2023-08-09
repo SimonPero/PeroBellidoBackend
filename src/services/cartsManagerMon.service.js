@@ -1,7 +1,10 @@
 
 import { Cart } from '../DAO/models/cart.model.js';
+import EErros from '../services/errors/enum-errors.service.js';
+import CustomError from '../services/errors/custom-error.service.js';
 import ProductManagerMon from '../DAO/classes/mongoose/productManagerMon.js';
 import { Types } from 'mongoose';
+
 
 
 const  productManager = new ProductManagerMon()
@@ -27,7 +30,12 @@ export default class CartsManager {
       if (cart) {
         return cart;
       } else {
-        return 'Error: Cart no encontrado';
+        throw CustomError.createError({
+          name:"CartNotFoundError",
+          message:" no cart was found",
+          cause:`no cart with the id: ${cartId} was found`,
+          code:EErros.CART_NOT_FOUND_ERROR,
+        })
       }
     } catch (error) {
       console.error(`Error al obtener el cart por ID: ${error}`);
@@ -39,7 +47,12 @@ export default class CartsManager {
     try {
       const cart = await Cart.findOne({ cartId });
       if (!cart) {
-        return 'Error: Cart no encontrado';
+        throw CustomError.createError({
+          name:"CartNotFoundError",
+          message:" no cart was found",
+          cause:`no cart with the id: ${cartId} was found`,
+          code:EErros.CART_NOT_FOUND_ERROR,
+        })
       }
       const product = await productManager.getProductById(productId)
 
@@ -66,7 +79,12 @@ export default class CartsManager {
     try {
       const cart = await Cart.findOne({ cartId });
       if (!cart) {
-        return 'Error: Carrito no encontrado';
+        throw CustomError.createError({
+          name:"CartNotFoundError",
+          message:" no cart was found",
+          cause:`no cart with the id: ${cartId} was found`,
+          code:EErros.CART_NOT_FOUND_ERROR,
+        })
       }
 
       const productIndex = cart.products.findIndex((p) => p.idProduct.toString() === productId);
@@ -86,7 +104,12 @@ export default class CartsManager {
   async updateProductsOfCart(cartId, newProducts) {
     const cart = await Cart.findOne({ cartId });
     if (!cart) {
-      throw new Error("Carrito no encontrado");
+      throw CustomError.createError({
+        name:"CartNotFoundError",
+        message:" no cart was found",
+        cause:`no cart with the id: ${cartId} was found`,
+        code:EErros.CART_NOT_FOUND_ERROR,
+      })
     }
 
     cart.products = newProducts;
@@ -97,12 +120,22 @@ export default class CartsManager {
     try {
       const cart = await Cart.findOne({ cartId });
       if (!cart) {
-        throw new Error("Carrito no encontrado");
+        throw CustomError.createError({
+          name:"CartNotFoundError",
+          message:" no cart was found",
+          cause:`no cart with the id: ${cartId} was found`,
+          code:EErros.CART_NOT_FOUND_ERROR,
+        })
       }
 
       const product = cart.products.find((p) => p.idProduct.toString() === productId);
       if (!product) {
-        throw new Error("Producto no encontrado en el carrito");
+        throw CustomError.createError({
+          name:"ProductsNotFoundError",
+          message:" no product was found",
+          cause:`no product with the id: ${productId} was found`,
+          code:EErros.PRODUCT_NOT_FOUND_ERROR,
+        })
       }
 
       const quantityValue = Number(quantity);
@@ -123,7 +156,12 @@ export default class CartsManager {
     // Buscar el carrito por su ID
     const cart = await Cart.findOne({ cartId });
     if (!cart) {
-      throw new Error("Carrito no encontrado");
+      throw CustomError.createError({
+        name:"CartNotFoundError",
+        message:" no cart was found",
+        cause:`no cart with the id: ${cartId} was found`,
+        code:EErros.CART_NOT_FOUND_ERROR,
+      })
     }
     // Eliminar todos los productos del carrito
     cart.products = [];
@@ -134,6 +172,14 @@ export default class CartsManager {
   async getAllCarts() {
     try {
       const carts = await Cart.find().populate('products');
+      if(!carts){
+        throw CustomError.createError({
+          name:"CartsNotFoundError",
+          message:" no carts was found",
+          cause:`we werent able to found any cart, cartsdb is empty`,
+          code:EErros.CART_NOT_FOUND_ERROR,
+        })
+      }
       return carts;
     } catch (error) {
       console.error(`Error al obtener todos los carts: ${error}`);

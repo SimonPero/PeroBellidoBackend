@@ -13,11 +13,30 @@ export default class TicketManagerMon {
 
     async comprarProductos(cartId, user) {
         const cart = await cartManager.getCartById(cartId);
+        if (!cart) {
+            throw CustomError.createError({
+                name: "CartNotFoundError",
+                message: " no cart was found",
+                cause: `no cart with the id: ${cartId} was found`,
+                code: EErros.CART_NOT_FOUND_ERROR,
+            })
+        }
+
         const productsPurchased = [];
         const productsNotPurchased = [];
 
         for (const product of cart.products) {
             const productData = await productManager.getProductById(product.idProduct);
+            if(!productData){
+                if (!productData) {
+                    throw CustomError.createError({
+                      name:"ProductsNotFoundError",
+                      message:" no product was found",
+                      cause:`no product with the id: ${productData.id} was found`,
+                      code:EErros.PRODUCT_NOT_FOUND_ERROR,
+                    })
+                  }
+            }
             if (productData) {
                 const productStock = productData.stock;
                 let quantityPurchased = 0; // Variable para almacenar la cantidad real comprada del producto
@@ -31,7 +50,6 @@ export default class TicketManagerMon {
                 }
 
                 if (quantityPurchased > 0) {
-                    console.log(`Product ${productData.title} (ID: ${product.idProduct}) is available for purchase.`);
                     const nuevoStock = productData.stock - quantityPurchased;
                     await productManager.updateProduct(productData._id, { "stock": nuevoStock });
 
@@ -76,7 +94,7 @@ export default class TicketManagerMon {
             }
         } else {
             const respuesta = { mensaje: "No se realizó ninguna compra" };
-            return(respuesta)
+            return (respuesta)
         }
 
         await cartManager.deleteAllProductsFromCart(cartId);
@@ -84,10 +102,10 @@ export default class TicketManagerMon {
 
         if (productsNotPurchased.length > 0) {
             const respuesta = { mensaje: "Algunos objetos no han sido comprados" };
-            return(respuesta)
+            return (respuesta)
         } else {
             const respuesta = { mensaje: "Compra exitosa" };
-            return(respuesta)
+            return (respuesta)
         }
 
 

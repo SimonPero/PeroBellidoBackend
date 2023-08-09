@@ -1,6 +1,9 @@
 import UserDTO from "../DAO/DTOs/user.dto.js";
 import CurrentUserDTO from "../DAO/DTOs/currentUser.dto.js";
 import ProductManagerMon from "../services/productManagerMon.service.js";
+import CustomError from "../services/errors/custom-error.service.js";
+import EErros from "../services/errors/enum-errors.service.js";
+import { generateUserErrorInfo } from "../services/errors/info-error.service.js";
 const productManager = new ProductManagerMon();
 
 
@@ -18,12 +21,13 @@ class SessionController {
     }
 
     completeRegister(req, res) {
-        if (!req.user) {
-            return res.status(500).render('error', { error: 'something went wrong' });
+        try {
+            const userDTO = new UserDTO(req.user);
+            req.session.user = userDTO;
+            return res.redirect('/api/session/login');
+        } catch (error) {
+             next(error)
         }
-        const userDTO = new UserDTO(req.user);
-        req.session.user = userDTO;
-        return res.redirect('/api/session/login');
     }
     async failRegister(req, res) {
         return res.status(500).render('error', { error: 'fail to register' });

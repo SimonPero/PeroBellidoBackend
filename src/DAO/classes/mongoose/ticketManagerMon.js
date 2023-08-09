@@ -30,7 +30,6 @@ export default class TicketManagerMon {
                 }
 
                 if (quantityPurchased > 0) {
-                    console.log(`Product ${productData.title} (ID: ${product.idProduct}) is available for purchase.`);
                     const nuevoStock = productData.stock - quantityPurchased;
                     await productManager.updateProduct(productData._id, { "stock": nuevoStock });
 
@@ -70,7 +69,6 @@ export default class TicketManagerMon {
             });
 
             const ticketDetails = await ticket.save(); // Guardar el ticket en la base de datos
-            console.log('Ticket generado con éxito:', ticketDetails);
             if (productsNotPurchased.length > 0) {
                 await this.notPurchasedProducts(cartId, productsNotPurchased, user);
             }
@@ -93,9 +91,5 @@ export default class TicketManagerMon {
         });
 
         const notPurchasedTicketDetails = await notPurchasedTicket.save(); // Guardar el ticket de los productos no comprados en la base de datos
-
-        console.log(`--- Ticket de Productos No Comprados ---`);
-        console.log('Ticket generado con éxito:', notPurchasedTicketDetails);
-        console.log(`----------------`);
     }
 }

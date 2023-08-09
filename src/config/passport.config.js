@@ -2,10 +2,12 @@ import passport from 'passport';
 import local from 'passport-local';
 import { createHash, isValidPassword } from '../utils.js';
 import { UserModel } from '../DAO/models/user.model.js';
-
+import EErros from '../services/errors/enum-errors.service.js';
+import CustomError from '../services/errors/custom-error.service.js';
 import fetch from 'node-fetch';
 import GitHubStrategy from 'passport-github2';
 import envConfig from './env.config.js';
+import { generateUserErrorInfo } from '../services/errors/info-error.service.js';
 import CartsManager from '../services/cartsManagerMon.service.js';
 const cartsManager = new CartsManager()
 
@@ -35,13 +37,23 @@ export function iniPassport() {
           return done(null, adminUser);
         } else {
           const user = await UserModel.findOne({ email: username });
+
           if (!user) {
-            console.log('User Not Found with username (email) ' + username);
-            return done(null, false);
+            throw CustomError.createError({
+              name: 'UserNotFoundError',
+              message: 'User not found',
+              cause: `'User Not Found with username (email) ' + ${username} `,
+              code: EErros.USER_NOT_FOUND_ERROR,
+            });
           }
+
           if (!isValidPassword(password, user.password)) {
-            console.log('Invalid Password');
-            return done(null, false);
+            throw CustomError.createError({
+              name: 'InvalidPasswordError',
+              cause: "inputed password didnt fit with existing password",
+              message: 'Invalid password',
+              code: EErros.INVALID_PASSWORD_ERROR,
+            });
           }
 
           user.role = 'usuario';
@@ -77,11 +89,28 @@ export function iniPassport() {
           const emailDetail = emails.find((email) => email.verified == true);
 
           if (!emailDetail) {
-            return done(new Error('cannot get a valid email for this user'));
+            throw CustomError.createError({
+              name: 'EmailNotFoundError',
+              message: 'Cannot get a valid email for this user',
+              cause: "no email was found in githublogin for us to use",
+              code: EErros.EMAIL_NOT_FOUND_ERROR,
+            });
           }
+
           profile.email = emailDetail.email;
 
           let user = await UserModel.findOne({ email: profile.email });
+
+          if (user) {
+            console.log('User already exists');
+            throw CustomError.createError({
+              name: 'UserExistsError',
+              message: 'User already exists',
+              cause: "email already in use",
+              code: EErros.USER_EXISTS_ERROR,
+            });
+          }
+
           if (!user) {
             const newUser = {
               email: profile.email,
@@ -90,7 +119,7 @@ export function iniPassport() {
               isAdmin: false,
               age: 13,
               password: "nopass",
-              github:true,
+              github: true,
               cart: await cartsManager.addCart(),
             };
             let userCreated = await UserModel.create(newUser);
@@ -119,6 +148,17 @@ export function iniPassport() {
         try {
           const { email, firstName, lastName, age } = req.body;
           let user = await UserModel.findOne({ email: username });
+
+          if (user) {
+            console.log('User already exists');
+            throw CustomError.createError({
+              name: 'UserExistsError',
+              message: 'User already exists',
+              cause: "email already in use",
+              code: EErros.USER_EXISTS_ERROR,
+            });
+          }
+
           if (user) {
             console.log('User already exists');
             return done(null, false);
@@ -133,6 +173,16 @@ export function iniPassport() {
             cart: await cartsManager.addCart(),
             password: createHash(password),
           };
+
+          if (newUser.age < 13 || newUser.age > 100 || !newUser.age || !newUser.email || !newUser.firstName || !newUser.lastName || !newUser.password) {
+            throw CustomError.createError({
+              name: 'UserAgeValidationError',
+              message: 'User age is not validate',
+              cause: generateUserErrorInfo(newUser),
+              code: EErros.INVALID_TYPES_ERROR,
+            });
+          }
+
           let userCreated = await UserModel.create(newUser);
           console.log('User Registration succesful');
           return done(null, userCreated);
