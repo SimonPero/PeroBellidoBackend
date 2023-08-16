@@ -17,10 +17,13 @@ import MongoStore from 'connect-mongo';
 import envConfig from "./config/env.config.js";
 import errorHandler  from "./middlewares/errors.js"
 import ProductManagerMon from "./services/productManagerMon.service.js";
+import { initLogger, logger} from "./utils.js";
+import {addLogger} from "./utils.js";
 const productManager = new ProductManagerMon()
 
+initLogger()
 const app = express();
-const port = envConfig.port;
+const port = envConfig.port ||8080;
 
 // Create HTTP server r
 const httpServer = app.listen(port, () => {
@@ -29,7 +32,8 @@ const httpServer = app.listen(port, () => {
 
 //Connecting  to mongo and chatSocket
 connectMongo()
-
+app.use(addLogger)
+app.use(errorHandler)
 //passport.
 app.use(
   session({
@@ -48,30 +52,23 @@ const socketServer = new Server(httpServer);
 
 socketServer.on("connection", (socket) => {
   console.log("A new socket connection has been established: " + socket.id);
-
     socket.on('msg_front_to_back', async (msg) => {
       const msgCreated = await MsgModel.create(msg);
       const msgs = await MsgModel.find({});
       socketServer.emit('msg_back_to_front', msgs);
     });
-  
   socket.on("new-product", async (title, description, price, code, stock, category, fileData) => {
     try {
       await productManager.addProduct(title, description, price, code, stock, category, fileData)
-
-      // Update product list after adding a new product
       const productsList = await productManager.getProducts();
-
       socketServer.emit("msgProdu_back_to_front", productsList);
     } catch (error) {
       console.log(error);
     }
   });
-
   socket.on("delete-product", async (productId) => {
     try {
       console.log("Deleting product with ID:", productId);
-      // Update product list after deleting a product
       socketServer.emit("product_deleted", productId);
     } catch (error) {
       console.log(error);
@@ -80,7 +77,6 @@ socketServer.on("connection", (socket) => {
 });
 
 app.use("/test-socket", realTimeProdsRouters);
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/public", express.static(__dirname + "/public"));
@@ -104,18 +100,10 @@ app.post("/realtimeproducts", uploader.single("file"), (req, res) => {
 //
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
-
-//
 app.use("/products", homeRouter);
 app.use("/realtimeproducts", realTimeProdsRouters)
-
-//
 app.use("/test-chat", testSocketChatRouter);
-
-
-//
 app.use("/api/session", sessionRouter)
-app.use(errorHandler)
 app.use("/", (req, res) => {
   return res.redirect('/api/session');
 });

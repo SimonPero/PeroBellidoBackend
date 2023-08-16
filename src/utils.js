@@ -5,8 +5,10 @@ import { connect } from "mongoose";
 import bcrypt from 'bcrypt';
 import envConfig from "./config/env.config.js";
 import { faker } from "@faker-js/faker";
+import winston from "winston";
 
 
+//multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, "/public/images"));
@@ -23,16 +25,18 @@ export const uploader = multer({ storage });
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
-//------
+
+//Connect To Mongo
 
 export async function connectMongo() {
   try {
-    await connect(envConfig.mongoUrl
-    );
+    logger.debug("Connecting to the MongoDB...");
+    await connect(envConfig.mongoUrl);
+    logger.info("Connected to the MongoDB!");
     console.log("plug to mongo!");
   } catch (e) {
-    console.log(e);
-    throw "can not connect to the db";
+     logger.error("Error connecting to the MongoDB...");
+    logger.error(e);
   }
 }
 
@@ -40,7 +44,6 @@ export const createHash = (password) => bcrypt.hashSync(password, bcrypt.genSalt
 export const isValidPassword = (password, hashPassword) => bcrypt.compareSync(password, hashPassword);
 
 //faker-js
-
 
 faker.constructor = 'es';
 
@@ -77,4 +80,46 @@ export const generateProduct = () => {
     picture: faker.image.url(),
     _id: faker.database.mongodbObjectId(),
   };
+};
+
+//logger
+const customFormat = winston.format.combine(
+  winston.format.timestamp(),
+  winston.format.printf(({ timestamp, level, message }) => {
+    return `${timestamp} ${level}: ${message}`;
+  })
+);
+
+const consoleFormat = winston.format.combine(
+  winston.format.colorize({ all: true })
+);
+
+const developmentLogger = winston.createLogger({
+  transports: [new winston.transports.Console({ level: "debug", format: consoleFormat })],
+  format: customFormat,
+});
+
+const productionLogger = winston.createLogger({
+  transports: [
+    new winston.transports.Console({ level: "info", format: consoleFormat }),
+    new winston.transports.File({ filename: "error.log", level: "error" }),
+  ],
+  format: customFormat,
+});
+
+
+
+export function initLogger() {
+  if (process.env.NODE_ENV === "production") {
+    return productionLogger;
+  } else {
+    return developmentLogger;
+  }
+}
+
+export let logger = initLogger()
+
+export const addLogger = (req, res, next) => {
+  req.logger = logger;
+  next();
 };
