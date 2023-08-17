@@ -19,6 +19,7 @@ import errorHandler  from "./middlewares/errors.js"
 import ProductManagerMon from "./services/productManagerMon.service.js";
 import { initLogger, logger} from "./utils.js";
 import {addLogger} from "./utils.js";
+import loggerRouter from "./routes/logger.router.js";
 const productManager = new ProductManagerMon()
 
 initLogger()
@@ -104,6 +105,7 @@ app.use("/products", homeRouter);
 app.use("/realtimeproducts", realTimeProdsRouters)
 app.use("/test-chat", testSocketChatRouter);
 app.use("/api/session", sessionRouter)
+app.use("/loggerTest", loggerRouter)
 app.use("/", (req, res) => {
   return res.redirect('/api/session');
 });

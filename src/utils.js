@@ -102,7 +102,7 @@ const developmentLogger = winston.createLogger({
 const productionLogger = winston.createLogger({
   transports: [
     new winston.transports.Console({ level: "info", format: consoleFormat }),
-    new winston.transports.File({ filename: "error.log", level: "error" }),
+    new winston.transports.File({ filename: "errors.log", level: "error" }),
   ],
   format: customFormat,
 });
