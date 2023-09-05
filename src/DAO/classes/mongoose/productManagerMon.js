@@ -137,7 +137,7 @@ export default class ProductManagerMon {
       throw error;
     }
   }
-  async addProduct(title, description, price, code, stock, category, fileData) {
+  async addProduct(title, description, price, code, stock, category, fileData, owner) {
     try {
       const existingProduct = await Product.findOne({ code });
       if (existingProduct) {
@@ -153,6 +153,7 @@ export default class ProductManagerMon {
         category,
         status: true,
         picture: `images/${fileData}`,
+        owner:owner,
       });
 
       return "Producto agregado con éxito";

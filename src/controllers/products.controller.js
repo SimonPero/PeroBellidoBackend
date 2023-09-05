@@ -41,9 +41,16 @@ class ProductsController {
             console.log(error)
         }
     }
-    async addProduct(req, res) {
+    async addProduct(req, res) { //checkear
         try {
-            const { title, description, price, code, stock, category } = req.body;
+            const user = req.sesion?.user
+            let owner =""
+            if (user.role === "premium"){
+                 owner = user.email
+            } else if(user.isAdmin){
+                 owner = "admin"
+            }
+            const { title, description, price, code, stock, category} = req.body;
             const result = await productManager.addProduct(title, description, price, code, stock, category);
             return res.json({
                 status: 'success',
@@ -69,7 +76,8 @@ class ProductsController {
     async deleteProduct(req, res) {
         try {
             const id = req.params.pid
-            const borrado = await productManager.deleteProduct(id)
+            const user = req.session?.user
+            const borrado = await productManager.deleteProduct(id,user)
             return res.json({
                 status: 'success',
                 payload: { borrado }

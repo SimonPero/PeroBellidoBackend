@@ -34,11 +34,12 @@ class HomeController {
             res.status(500).send("Internal Server Error");
         }
     }
-    async addProductToCart(req, res) {
+    async addProductToCart(req, res) { //revisar
         try {
             const productId = req.body.productId;
+            const user = req.session.user
             const cartId = req.params.cid;
-            const cartWithProduct = await cartsManager.addProductToCart(cartId, productId);
+            const cartWithProduct = await cartsManager.addProductToCart(cartId, productId, user);
             return res.json({
                 status: 'success',
                 payload: { cart: cartWithProduct }

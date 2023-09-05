@@ -1,9 +1,6 @@
 import UserDTO from "../DAO/DTOs/user.dto.js";
 import CurrentUserDTO from "../DAO/DTOs/currentUser.dto.js";
 import ProductManagerMon from "../services/productManagerMon.service.js";
-import CustomError from "../services/errors/custom-error.service.js";
-import EErros from "../services/errors/enum-errors.service.js";
-import { generateUserErrorInfo } from "../services/errors/info-error.service.js";
 const productManager = new ProductManagerMon();
 
 

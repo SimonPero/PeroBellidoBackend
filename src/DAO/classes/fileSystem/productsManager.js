@@ -14,7 +14,7 @@ export default class ProductManager {
             return `Error reading products file: ${error}`
         }
     }
-    async addProduct(title, description, price, code, stock, category, fileData) {
+    async addProduct(title, description, price, code, stock, category, fileData, owner) { //chekear
         try {
             if (!fs.existsSync(this.path)) {
                 await fs.promises.writeFile(this.path, '[]');
@@ -41,7 +41,8 @@ export default class ProductManager {
                     status: Boolean(true),
                     category: String(category),
                     id: String(pid),
-                    picture: `images/${fileData}`
+                    picture: `images/${fileData}`,
+                    owner: owner,
                 };
                 content.push(product);
                 const productsString = JSON.stringify(content);

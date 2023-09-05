@@ -1,7 +1,10 @@
 import { Product } from '../DAO/models/product.model.js';
 import { MongoClient } from 'mongodb';
 import envConfig from '../config/env.config.js';
-
+import CustomError from './errors/custom-error.service.js';
+import EErros from './errors/enum-errors.service.js';
+import UserManagerMon from './userManagerMon.service.js';
+const userManagerMon = new UserManagerMon()
 export default class ProductManagerMon {
 
   async getProducts(query, options, sort) {
@@ -16,8 +19,6 @@ export default class ProductManagerMon {
       const { docs, ...rest } = result;
 
       const products = docs.map((doc) => doc.toObject({ getters: true }));
-
-      
 
       const currentPage = parseInt(options.page) || 1;
       const totalPages = rest.totalPages;
@@ -126,34 +127,27 @@ export default class ProductManagerMon {
     }
   }
 
-  async getRealTimeProducts() {
+  async getRealTimeProducts(owner) {
     try {
+      const user = await userManagerMon.getUserByUserName(owner)
       const client = await MongoClient.connect(envConfig.mongoUrl);
       const db = client.db();
       const collection = db.collection("products");
       const items = await collection.find({}).toArray();
       client.close();
-      return items;
+      if (user.role ==="premium") {
+        const products = items.filter((product) => product.owner === owner);
+        return products;
+      } else {
+        return items;
+      }
     } catch (error) {
       console.error('Error al obtener los productos:', error);
       throw error;
     }
   }
-  async addProduct(title, description, price, code, stock, category, fileData) {
+  async addProduct(title, description, price, code, stock, category, fileData, owner) {
     try {
-      const existingProduct = await Product.findOne({ code });
-      if (!existingProduct) {
-        throw CustomError.createError({
-          name:"ProductsNotFoundError",
-          message:" no product was found",
-          cause:`no product with the CODE: ${code} was found`,
-          code:EErros.PRODUCT_NOT_FOUND_ERROR,
-        })
-      }
-      if (existingProduct) {
-        return "El código del producto ya está en uso";
-      }
-
       await Product.create({
         title,
         description,
@@ -163,6 +157,7 @@ export default class ProductManagerMon {
         category,
         status: true,
         picture: `images/${fileData}`,
+        owner: owner,
       });
 
       return "Producto agregado con éxito";
@@ -175,15 +170,15 @@ export default class ProductManagerMon {
   async getProductById(id) {
     try {
       const product = await Product.findById(id).lean();
-      if(product){
+      if (product) {
         return product
       } else {
         if (!product) {
           throw CustomError.createError({
-            name:"ProductNotFoundError",
-            message:" no product was found",
-            cause:`no product with the id: ${id} was found`,
-            code:EErros.PRODUCT_NOT_FOUND_ERROR,
+            name: "ProductNotFoundError",
+            message: " no product was found",
+            cause: `no product with the id: ${id} was found`,
+            code: EErros.PRODUCT_NOT_FOUND_ERROR,
           })
         }
       }
@@ -213,18 +208,27 @@ export default class ProductManagerMon {
       return null;
     }
   }
-  async deleteProduct(id) {
+  async deleteProduct(id, user) {
     try {
+      const product = await Product.findById(id)
+      if(!product.owner ===user.email && !user.isAdmin){
+        throw CustomError.createError({
+          name: "CannotDeleteOtherPeopleProducts",
+          message: "you tried to deleted the product of other person",
+          cause: `the product of the owner:${product.owner} was tried to be deleted by ${user.email}`,
+          code: EErros.PRODUCT_NOT_FOUND_ERROR,
+        })
+      }
       const deletedProduct = await Product.findByIdAndDelete(id).lean();
-      if(deletedProduct){
+      if (deletedProduct) {
         return "eliminado correctamente"
       } else {
         if (!deletedProduct) {
           throw CustomError.createError({
-            name:"ProductsNotFoundError",
-            message:" no product was found",
-            cause:`no product with the id: ${id} was found`,
-            code:EErros.PRODUCT_NOT_FOUND_ERROR,
+            name: "ProductsNotFoundError",
+            message: " no product was found",
+            cause: `no product with the id: ${id} was found`,
+            code: EErros.PRODUCT_NOT_FOUND_ERROR,
           })
         }
       }

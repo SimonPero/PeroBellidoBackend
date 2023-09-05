@@ -3,8 +3,10 @@ import session from 'express-session';
 import { productsRouter } from "./routes/products.router.js";
 import { cartsRouter } from "./routes/carts.router.js";
 import { homeRouter } from "./routes/home.router.js";
+import {recoverEmailRouter} from "./routes/recoverEmaillRouter.js"
 import handlerbars from "express-handlebars";
 import path from "path";
+import { usersRouter } from "./routes/users.router.js";
 import { __dirname, connectMongo, uploader } from "./utils.js";
 import { Server } from "socket.io";
 import { realTimeProdsRouters } from "./routes/realtimeprods.router.js";
@@ -58,10 +60,10 @@ socketServer.on("connection", (socket) => {
       const msgs = await MsgModel.find({});
       socketServer.emit('msg_back_to_front', msgs);
     });
-  socket.on("new-product", async (title, description, price, code, stock, category, fileData) => {
+  socket.on("new-product", async (title, description, price, code, stock, category, fileData, owner) => {
     try {
-      await productManager.addProduct(title, description, price, code, stock, category, fileData)
-      const productsList = await productManager.getProducts();
+      await productManager.addProduct(title, description, price, code, stock, category, fileData, owner)
+      const productsList = await productManager.getRealTimeProducts(owner);
       socketServer.emit("msgProdu_back_to_front", productsList);
     } catch (error) {
       console.log(error);
@@ -69,7 +71,7 @@ socketServer.on("connection", (socket) => {
   });
   socket.on("delete-product", async (productId) => {
     try {
-      console.log("Deleting product with ID:", productId);
+      await productManager.deleteProduct(productId);
       socketServer.emit("product_deleted", productId);
     } catch (error) {
       console.log(error);
@@ -99,6 +101,8 @@ app.post("/realtimeproducts", uploader.single("file"), (req, res) => {
 });
 
 //
+app.use("/recoverEmail", recoverEmailRouter)
+app.use("/api/users", usersRouter)
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
 app.use("/products", homeRouter);

@@ -33,7 +33,6 @@ export async function connectMongo() {
     logger.debug("Connecting to the MongoDB...");
     await connect(envConfig.mongoUrl);
     logger.info("Connected to the MongoDB!");
-    console.log("plug to mongo!");
   } catch (e) {
      logger.error("Error connecting to the MongoDB...");
     logger.error(e);

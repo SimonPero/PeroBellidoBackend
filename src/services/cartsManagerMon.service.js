@@ -43,7 +43,7 @@ export default class CartsManager {
     }
   }
 
-  async addProductToCart(cartId, productId) {
+  async addProductToCart(cartId, productId, user) {  //revisar
     try {
       const cart = await Cart.findOne({ cartId });
       if (!cart) {
@@ -55,7 +55,14 @@ export default class CartsManager {
         })
       }
       const product = await productManager.getProductById(productId)
-
+      if(product.owner === user.email){
+        throw CustomError.createError({
+          name:"NotAvailableForPurchase",
+          message:" you can not buy your own products",
+          cause:`you were trying to buy one of your own products`,
+          code:EErros.PRODUCT_NOT_FOUND_ERROR,
+        })
+      }
       const existingProduct = cart.products.find((p) => new Types.ObjectId(p.idProduct).equals(new Types.ObjectId(productId)));
       if (existingProduct) {
         if (product.stock > existingProduct.quantity) {

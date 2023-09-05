@@ -48,16 +48,13 @@ export function iniPassport() {
           }
 
           if (!isValidPassword(password, user.password)) {
-            throw CustomError.createError({
+            return error = CustomError.createError({
               name: 'InvalidPasswordError',
               cause: "inputed password didnt fit with existing password",
               message: 'Invalid password',
               code: EErros.INVALID_PASSWORD_ERROR,
             });
           }
-
-          user.role = 'usuario';
-          console.log('User authenticated as regular user');
           return done(null, user);
         }
       } catch (err) {

@@ -13,11 +13,26 @@ export function isAdmin(req, res, next) {
     return res.status(403).render('error', { error: 'error de autorización!' });
 }
 
+export function isPremium(req, res, next) {
+  const role = req.session?.user?.role
+  if (role === "premium") {
+      return next();
+  }
+  return res.status(403).render('error', { error: 'error de autorización!' });
+}
+
 export function isAdminDeny(req, res, next) {
     if (req.session?.user?.isAdmin) {
         return res.status(403).render('error', { error: 'error de autorización!' });
     }
     return next();
+}
+
+export function isYourProduct(req, res, next) {
+  if (req.session?.user?.email) {
+      return res.status(403).render('error', { error: 'error de autorización!' });
+  }
+  return next();
 }
 
 export async function isYourCart (req, res, next) {

@@ -9,6 +9,9 @@ const inputCode = document.getElementById("form-code")
 const inputStock = document.getElementById("form-stock")
 const inputCategory = document.getElementById("form-category")
 
+const userRoleElement = document.querySelector(".user-owner");
+const owner = userRoleElement.getAttribute("user-owner-id");
+
 function deleteProduct(id) {
   socket.emit("delete-product", id)
 }
@@ -72,7 +75,7 @@ submitButton.addEventListener("click", (e) => {
     .then((data) => {
       const fileData = data.filename; // Obtener el nombre del archivo guardado
 
-      socket.emit("new-product", title, description, price, code, stock, category, fileData);
+      socket.emit("new-product", title, description, price, code, stock, category, fileData, owner);
     })
     .catch((error) => console.log(error));
 })

@@ -35,7 +35,7 @@ export default class CartsManager {
     }
   }
 
-  async addProductToCart(cartId, productId) {
+  async addProductToCart(cartId, productId) { //revisar
     try {
       const cart = await Cart.findOne({ cartId });
       if (!cart) {

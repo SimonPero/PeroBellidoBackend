@@ -1,6 +1,6 @@
-<div >
-  <h1>Bienvenido Admin</h1>
-  <section >
+<div>
+  <h1 class="user-owner" user-owner-id="{{user.email}}">Bienvenido {{#if user.firstName}}{{user.firstName}}{{else}}{{user.role}}{{/if}}</h1>
+  <section>
     <ul id="ejemplo">
       {{#each products}}
       <li id="{{#if this._id}}{{this._id}}{{else}}{{this.id}}{{/if}}">
@@ -12,55 +12,56 @@
         <p>Stock: {{this.stock}}</p>
         <p>Categoría: {{this.category}}</p>
         <img src="/public/{{this.picture}}" alt="">
-        <button class="btn-delete" onclick="deleteProduct('{{#if this._id}}{{this._id}}{{else}}{{this.id}}{{/if}}')">Eliminar</button>
+        <button class="btn-delete"
+          onclick="deleteProduct('{{#if this._id}}{{this._id}}{{else}}{{this.id}}{{/if}}')">Eliminar</button>
       </li>
       {{/each}}
     </ul>
   </section>
- <section>
-  <form id="form-products" style="margin: auto" enctype="multipart/form-data">
-    <div style="margin-bottom: 16px">
-      <div>
-        <label for="title">Titulo:</label>
-        <br />
-        <input value="" type="text"  id="form-title" style="margin-bottom: 16px" class="form-control" />
+  <section>
+    <form id="form-products" style="margin: auto" enctype="multipart/form-data">
+      <div style="margin-bottom: 16px">
+        <div>
+          <label for="title">Titulo:</label>
+          <br />
+          <input value="" type="text" id="form-title" style="margin-bottom: 16px" class="form-control" />
+        </div>
+        <div>
+          <label for="description">Descripción:</label>
+          <br />
+          <input value="" type="text" id="form-description" style="margin-bottom: 16px" class="form-control" />
+        </div>
+        <div>
+          <label for="price">Precio:</label>
+          <br />
+          <input value="" type="number" id="form-price" style="margin-bottom: 16px" step="1" class="input-file" />
+        </div>
+        <div>
+          <label for="code">Código:</label>
+          <br />
+          <input value="" type="text" id="form-code" style="margin-bottom: 16px" class="input-file" />
+        </div>
+        <div>
+          <label for="stock">Stock:</label>
+          <br />
+          <input value="" type="number" id="form-stock" style="margin-bottom: 16px" step="1" />
+        </div>
+        <div>
+          <label for="category">Categoría:</label>
+          <br />
+          <input value="" type="text" id="form-category" style="margin-bottom: 16px" />
+        </div>
+        <div>
+          <label for="file">Archivo:</label>
+          <br />
+          <input value="" type="file" name="file" id="form-file" style="margin-bottom: 16px" />
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center">
+          <input type="submit" value="Crear producto" id="submit-button" />
+        </div>
       </div>
-      <div>
-        <label for="description">Descripción:</label>
-        <br />
-        <input value="" type="text"  id="form-description" style="margin-bottom: 16px" class="form-control" />
-      </div>
-      <div>
-        <label for="price">Precio:</label>
-        <br />
-        <input value="" type="number"  id="form-price" style="margin-bottom: 16px" step="1" class="input-file" />
-      </div>
-      <div>
-        <label for="code">Código:</label>
-        <br />
-        <input value="" type="text"  id="form-code" style="margin-bottom: 16px" class="input-file" />
-      </div>
-      <div>
-        <label for="stock">Stock:</label>
-        <br />
-        <input value="" type="number"  id="form-stock" style="margin-bottom: 16px" step="1" />
-      </div>
-      <div>
-        <label for="category">Categoría:</label>
-        <br />
-        <input value="" type="text"  id="form-category" style="margin-bottom: 16px" />
-      </div>
-      <div>
-        <label for="file">Archivo:</label>
-        <br />
-        <input value="" type="file" name="file" id="form-file" style="margin-bottom: 16px" />
-      </div>
-      <div style="display: flex; justify-content: center; align-items: center">
-        <input type="submit" value="Crear producto" id="submit-button" />
-      </div>
-    </div>
-  </form>
-</section>
+    </form>
+  </section>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
 <script src="/socket.io/socket.io.js"></script>

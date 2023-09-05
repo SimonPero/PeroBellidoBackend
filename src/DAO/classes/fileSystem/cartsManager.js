@@ -58,7 +58,7 @@ export default class CartsManager {
         }
     }
 
-    async addProductToCart(cartId, productId) {
+    async addProductToCart(cartId, productId) { //revisar
         try {
             const cartsFile = await fs.promises.readFile(this.path, 'utf-8');
             const productsFile = await fs.promises.readFile("./src/public/productos.json", 'utf-8');
