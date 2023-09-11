@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import envConfig from '../config/env.config';
+import envConfig from '../config/env.config.js';
 class RecoverEmailController {
      async  sendMessageToEmail(email, code) {
         const transport = nodemailer.createTransport({
@@ -12,7 +12,7 @@ class RecoverEmailController {
         })
 
         const result = await transport.sendMail({
-            from: envConfig.,
+            from: envConfig.googleName,
             to: email,
             subject: "perdon me faltaba algo",
             html: `

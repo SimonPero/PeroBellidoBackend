@@ -1,0 +1,258 @@
+paths:
+  /products:
+    get:
+      summary: Obtiene productos
+      tags:
+        - Products
+      parameters:
+        - name: limit
+          in: query
+          description: Límite de productos a devolver (opcional)
+          schema:
+            type: integer
+        - name: category
+          in: query
+          description: Filtrar productos por categoría (opcional)
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Ordenar productos por criterio (opcional)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Productos obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "500":
+          description: Error del servidor al obtener productos
+          
+    post:
+      summary: Agrega un nuevo producto
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/requestBodies/AddProduct"
+      responses:
+        "200":
+          description: Producto agregado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+
+  /products/{pid}:
+    get:
+      summary: Obtiene detalles de un producto por su ID
+      tags:
+        - Products
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto del que se obtendrán los detalles
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Detalles del producto obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "500":
+          description: Error del servidor al obtener los detalles del producto
+
+    put:
+      summary: Actualiza un producto por su ID
+      tags:
+        - Products
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto que se actualizará
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/requestBodies/UpdateProduct"
+      responses:
+        "200":
+          description: Producto actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "500":
+          description: Error del servidor al actualizar el producto
+
+    delete:
+      summary: Elimina un producto por su ID
+      tags:
+        - Products
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto que se eliminará
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Producto eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+        "500":
+          description: Error del servidor al eliminar el producto
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Título del producto
+        description:
+          type: string
+          description: Descripción del producto
+        price:
+          type: number
+          description: Precio del producto
+        code:
+          type: string
+          description: Código del producto
+        stock:
+          type: number
+          description: Cantidad en stock
+        status:
+          type: boolean
+          description: Estado del producto
+        category:
+          type: string
+          description: Categoría del producto
+        picture:
+          type: string
+          description: URL de la imagen del producto
+        owner:
+          type: string
+          description: Propietario del producto
+      example:
+        title: Ejemplo de Producto
+        description: Este es un producto de ejemplo
+        price: 19.99
+        code: ABC123
+        stock: 100
+        status: true
+        category: Electrónicos
+        picture: https://example.com/product.jpg
+        owner: admin
+
+  requestBodies:
+    UpdateProduct:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                description: Nuevo título del producto
+              description:
+                type: string
+                description: Nueva descripción del producto
+              price:
+                type: number
+                description: Nuevo precio del producto
+              code:
+                type: string
+                description: Nuevo código del producto
+              stock:
+                type: number
+                description: Nueva cantidad en stock
+              status:
+                type: boolean
+                description: Nuevo estado del producto
+              category:
+                type: string
+                description: Nueva categoría del producto
+              picture:
+                type: string
+                description: Nueva URL de la imagen del producto
+            example:
+              title: Nuevo Producto
+              description: Este es un producto actualizado
+              price: 29.99
+              code: XYZ456
+              stock: 50
+              status: true
+              category: Ropa
+              picture: https://example.com/new_product.jpg
+
+    AddProduct:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                description: Título del nuevo producto
+              description:
+                type: string
+                description: Descripción del nuevo producto
+              price:
+                type: number
+                description: Precio del nuevo producto
+              code:
+                type: string
+                description: Código del nuevo producto
+              stock:
+                type: number
+                description: Cantidad en stock del nuevo producto
+              status:
+                type: boolean
+                description: Estado del nuevo producto
+              category:
+                type: string
+                description: Categoría del nuevo producto
+              picture:
+                type: string
+                description: URL de la imagen del nuevo producto
+            example:
+              title: Nuevo Producto
+              description: Este es un nuevo producto
+              price: 39.99
+              code: NEW123
+              stock: 75
+              status: true
+              category: Muebles
+              picture: https://example.com/new_product.jpg
+
+    Success:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Éxito o error
+        message:
+          type: string
+          description: Descripción de lo que ocurrió
+      example:
+        status: success
+        message: Operación exitosa

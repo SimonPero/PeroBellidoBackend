@@ -8,6 +8,9 @@ import handlerbars from "express-handlebars";
 import path from "path";
 import { usersRouter } from "./routes/users.router.js";
 import { __dirname, connectMongo, uploader } from "./utils.js";
+import { _dirname_base } from "./dir.name.js";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUiExpress from 'swagger-ui-express'
 import { Server } from "socket.io";
 import { realTimeProdsRouters } from "./routes/realtimeprods.router.js";
 import { testSocketChatRouter } from "./routes/test.socket.router.chat.js";
@@ -34,6 +37,7 @@ const httpServer = app.listen(port, () => {
 });
 
 //Connecting  to mongo and chatSocket
+
 connectMongo()
 app.use(addLogger)
 app.use(errorHandler)
@@ -78,6 +82,21 @@ socketServer.on("connection", (socket) => {
     }
   });
 });
+
+//documentation of swagger
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.1",
+    info: {
+      title: "Documentacion Pizzas",
+      description: "Este proyecto no es de pizzas, es de Productos y Carts",
+   },
+  },
+  apis: [`${_dirname_base}/docs/**/*.yaml`],
+};
+const specs = swaggerJSDoc(swaggerOptions);
+app.use("/apidocs", swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
+
 
 app.use("/test-socket", realTimeProdsRouters);
 app.use(express.json());

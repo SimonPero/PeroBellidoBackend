@@ -1,0 +1,241 @@
+paths:
+  /api/carts:
+    post:
+      summary: Crea un nuevo carrito
+      tags:
+        - Carts
+      security:
+        - session: []
+      responses:
+        "200":
+          description: Carrito creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cart"
+        "500":
+          description: Error del servidor al crear el carrito
+
+  /api/carts/{cid}:
+    get:
+      summary: Obtiene un carrito por su ID
+      tags:
+        - Carts
+      security:
+        - session: []
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito que se busca
+          schema:
+            type: String
+      responses:
+        "200":
+          description: Carrito encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cart"
+        "500":
+          description: Error del servidor al obtener el carrito por su ID
+
+    put:
+      summary: Actualiza el contenido del carrito
+      tags:
+        - Carts
+      security:
+        - session: []
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito que se actualizará
+          schema:
+            type: String
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/CartProduct"
+      responses:
+        "200":
+          description: Carrito actualizado con éxito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cart"
+        "500":
+          description: Error del servidor al actualizar el carrito
+          
+    delete:
+      summary: Elimina todos los productos del carrito
+      tags:
+        - Carts
+      security:
+        - session: []
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito del que se eliminarán todos los productos
+          schema:
+            type: String
+      responses:
+        "200":
+          description: Todos los productos eliminados del carrito con éxito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+
+  /api/carts/{cid}/product/{pid}:
+    post:
+      summary: Agrega un producto al carrito
+      tags:
+        - Carts
+      security:
+        - session: []
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito al que se agregará el producto
+          schema:
+            type: String
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto que se agregará al carrito
+          schema:
+            type: String
+      responses:
+        "200":
+          description: Producto agregado exitosamente al carrito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cart"
+        "500":
+          description: Error del servidor al agregar el producto al carrito
+
+    delete:
+      summary: Elimina un producto del carrito
+      tags:
+        - Carts
+      security:
+        - session: []
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito del que se eliminará el producto
+          schema:
+            type: String
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto que se eliminará del carrito
+          schema:
+            type: String
+      responses:
+        "200":
+          description: Producto eliminado exitosamente del carrito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cart"
+        "500":
+          description: Error del servidor al eliminar el producto del carrito
+
+    put:
+      summary: Actualiza la cantidad de un producto en el carrito
+      tags:
+        - Carts
+      security:
+        - session: []
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito en el que se actualizará la cantidad del producto
+          schema:
+            type: String
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto del que se actualizará la cantidad
+          schema:
+            type: String
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  description: Nueva cantidad del producto
+            example:
+              quantity: 5
+      responses:
+        "200":
+          description: Cantidad de producto actualizada con éxito en el carrito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cart"
+        "500":
+          description: Error del servidor al actualizar la cantidad del producto en el carrito
+
+
+
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        cartId:
+          type: string
+          description: ID del carrito
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartProduct"
+      example:
+        cartId: "1"
+        products:
+          - idProduct: "123456"
+            quantity: 2
+          - idProduct: "789101"
+            quantity: 1
+
+    CartProduct:
+      type: object
+      properties:
+        idProduct:
+          type: string
+          description: ID del producto
+        quantity:
+          type: integer
+          description: Cantidad del producto en el carrito
+      example:
+        idProduct: "123456"
+        quantity: 2
+
+    Success:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Éxito o error
+        message:
+          type: string
+          description: Descripción de lo que ocurrió
+      example:
+        status: success
+        message: Operación exitosa

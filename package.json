@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node ./src/app.js",
-    "dev": "nodemon ./src/app.js"
+    "dev": "nodemon -e yalm,js ./src/app.js"
   },
   "keywords": [],
   "author": "",
@@ -40,6 +40,8 @@
     "socket.io": "^4.6.2",
     "socket.io-client": "^4.6.2",
     "start": "^5.1.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
     "sweetalert2": "^11.4.8",
     "transport": "^0.0.3",
     "utils": "^0.0.2",

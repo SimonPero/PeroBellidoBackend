@@ -1,0 +1,185 @@
+paths:
+  /home:
+    get:
+      summary: Obtiene productos para la página de inicio
+      tags:
+        - Home
+      security:
+        - session: []
+      responses:
+        "200":
+          description: Productos de inicio obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "500":
+          description: Error del servidor al obtener productos para la página de inicio
+
+  /home/{cid}/product/{pid}:
+    post:
+      summary: Agrega un producto al carrito de compras
+      tags:
+        - Home
+      security:
+        - session: []
+        - isAdminDeny: []
+        - isYourCart: []
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito de compras al que se agregará el producto
+          schema:
+            type: String
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto que se agregará al carrito
+          schema:
+            type: String
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productId:
+                  type: string
+                  description: ID del producto a agregar al carrito
+            example:
+              productId: "123456"
+      responses:
+        "200":
+          description: Producto agregado exitosamente al carrito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cart"
+        "500":
+          description: Error del servidor al agregar el producto al carrito
+
+  /home/{productId}:
+    get:
+      summary: Obtiene detalles de un producto por su ID
+      tags:
+        - Home
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          description: ID del producto del que se obtendrán los detalles
+          schema:
+            type: String
+      responses:
+        "200":
+          description: Detalles del producto obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "500":
+          description: Error del servidor al obtener los detalles del producto
+
+  /home/carts/{cid}:
+    get:
+      summary: Obtiene detalles de un carrito de compras por su ID
+      tags:
+        - Home
+      security:
+        - session: []
+        - isAdminDeny: []
+        - isYourCart: []
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito de compras del que se obtendrán los detalles
+          schema:
+            type: String
+      responses:
+        "200":
+          description: Detalles del carrito de compras obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cart"
+        "500":
+          description: Error del servidor al obtener los detalles del carrito de compras
+
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        cartId:
+          type: string
+          description: ID del carrito
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartProduct"
+      example:
+        cartId: "1"
+        products:
+          - idProduct: "123456"
+            quantity: 2
+          - idProduct: "789101"
+            quantity: 1
+
+    CartProduct:
+      type: object
+      properties:
+        idProduct:
+          type: string
+          description: ID del producto
+        quantity:
+          type: integer
+          description: Cantidad del producto en el carrito
+      example:
+        idProduct: "123456"
+        quantity: 2
+
+  Product:
+    type: object
+    properties:
+      title:
+        type: string
+        description: Título del producto
+      description:
+        type: string
+        description: Descripción del producto
+      price:
+        type: number
+        description: Precio del producto
+      code:
+        type: string
+        description: Código del producto
+      stock:
+        type: integer
+        description: Stock del producto
+      status:
+        type: boolean
+        description: Estado del producto
+      category:
+        type: string
+        description: Categoría del producto
+      picture:
+        type: string
+        description: URL de la imagen del producto
+      owner:
+        type: string
+        description: Propietario del producto
+      example:
+        title: "Producto de ejemplo"
+        description: "Descripción del producto de ejemplo"
+        price: 99.99
+        code: "ABC123"
+        stock: 100
+        status: true
+        category: "Electrónicos"
+        picture: "https://example.com/product-image.jpg"
+        owner: "admin"

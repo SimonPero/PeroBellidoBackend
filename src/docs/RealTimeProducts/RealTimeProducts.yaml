@@ -1,0 +1,68 @@
+# Rutas
+paths:
+  /realtime:
+    get:
+      summary: Obtiene productos en tiempo real
+      tags:
+        - Productos en tiempo real
+      security:
+        - isPremium: []
+      responses:
+        200:
+          description: Productos obtenidos satisfactoriamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RealTimeProductResponse"
+        401:
+          description: No autorizado (usuario no premium)
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      
+# Componentes
+components:
+  schemas:
+    RealTimeProductResponse:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        user:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Nombre del usuario
+            email:
+              type: string
+              description: Correo electrónico del usuario
+      example:
+        products:
+          - {producto1}
+          - {producto2}
+        user:
+          name: Nombre del Usuario
+          email: usuario@example.com
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indica si la solicitud fue exitosa
+        msg:
+          type: string
+          description: Mensaje de error
+        payload:
+          type: object
+          description: Datos adicionales relacionados con el error
+      example:
+        success: false
+        msg: Error
+        payload: {}
