@@ -1,5 +1,5 @@
 paths:
-  /home:
+  /products/home:
     get:
       summary: Obtiene productos para la página de inicio
       tags:
@@ -18,7 +18,7 @@ paths:
         "500":
           description: Error del servidor al obtener productos para la página de inicio
 
-  /home/{cid}/product/{pid}:
+  /products/home/{cid}/product/{pid}:
     post:
       summary: Agrega un producto al carrito de compras
       tags:
@@ -62,7 +62,7 @@ paths:
         "500":
           description: Error del servidor al agregar el producto al carrito
 
-  /home/{productId}:
+  /products/home/{productId}:
     get:
       summary: Obtiene detalles de un producto por su ID
       tags:
@@ -84,7 +84,7 @@ paths:
         "500":
           description: Error del servidor al obtener los detalles del producto
 
-  /home/carts/{cid}:
+  /products/home/carts/{cid}:
     get:
       summary: Obtiene detalles de un carrito de compras por su ID
       tags:

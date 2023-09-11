@@ -20,10 +20,12 @@ class ProductsController {
             };
             const productsData = await productManager.getProducts(query, options, sort);
             const pagina = await productManager.revisionJson(productsData, category, limit)
-            return res.json({
-                status: 'success',
-                payload: { pagina }
-            })
+            return res
+                .status(200)
+                .json({
+                    status: 'success',
+                    payload: { products: pagina.products }
+                });
         } catch (error) {
             console.log(error);
             res.status(500).send("Internal Server Error");
@@ -44,13 +46,13 @@ class ProductsController {
     async addProduct(req, res) { //checkear
         try {
             const user = req.sesion?.user
-            let owner =""
-            if (user.role === "premium"){
-                 owner = user.email
-            } else if(user.isAdmin){
-                 owner = "admin"
+            let owner = ""
+            if (user.role === "premium") {
+                owner = user.email
+            } else if (user.isAdmin) {
+                owner = "admin"
             }
-            const { title, description, price, code, stock, category} = req.body;
+            const { title, description, price, code, stock, category } = req.body;
             const result = await productManager.addProduct(title, description, price, code, stock, category);
             return res.json({
                 status: 'success',
@@ -77,7 +79,7 @@ class ProductsController {
         try {
             const id = req.params.pid
             const user = req.session?.user
-            const borrado = await productManager.deleteProduct(id,user)
+            const borrado = await productManager.deleteProduct(id, user)
             return res.json({
                 status: 'success',
                 payload: { borrado }

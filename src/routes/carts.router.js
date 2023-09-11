@@ -4,6 +4,7 @@ import {cartsController}  from "../controllers/carts.controller.js";
 export const cartsRouter = express.Router();
 
 cartsRouter.post("/", cartsController.addCart);
+cartsRouter.get("/", cartsController.getAllCarts);
 cartsRouter.get("/:cid", cartsController.getCartById);
 cartsRouter.post("/:cid/product/:pid", cartsController.addProductToCart);
 cartsRouter.delete("/:cid/product/:pid", cartsController.deleteProductFromCart);

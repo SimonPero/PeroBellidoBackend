@@ -1,5 +1,21 @@
 paths:
   /api/carts:
+    get:
+      summary: Obtiene todos los carritos
+      tags:
+        - Carts
+      security:
+        - session: []
+      responses:
+        "200":
+          description: Carritos obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartList"
+        "500":
+          description: Error del servidor al obtener los carritos
+
     post:
       summary: Crea un nuevo carrito
       tags:
@@ -70,7 +86,7 @@ paths:
                 $ref: "#/components/schemas/Cart"
         "500":
           description: Error del servidor al actualizar el carrito
-          
+
     delete:
       summary: Elimina todos los productos del carrito
       tags:

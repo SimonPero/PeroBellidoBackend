@@ -1,6 +1,6 @@
 # Rutas
 paths:
-  /realtime:
+  /realtimeproducts:
     get:
       summary: Obtiene productos en tiempo real
       tags:

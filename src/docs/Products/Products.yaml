@@ -1,5 +1,5 @@
 paths:
-  /products:
+  /api/products:
     get:
       summary: Obtiene productos
       tags:
@@ -31,7 +31,7 @@ paths:
                   $ref: "#/components/schemas/Product"
         "500":
           description: Error del servidor al obtener productos
-          
+
     post:
       summary: Agrega un nuevo producto
       tags:
@@ -50,7 +50,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Success"
 
-  /products/{pid}:
+  /api/products/{pid}:
     get:
       summary: Obtiene detalles de un producto por su ID
       tags:

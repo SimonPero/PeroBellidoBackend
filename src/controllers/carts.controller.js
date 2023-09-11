@@ -6,7 +6,7 @@ const cartsManager= new CartsManager()
 class CartsController {
     async addCart(req, res) {
         try {
-            cart = await cartsManager.addCart()
+            const cart = await cartsManager.addCart()
             return res.json({
                 status: 'success',
                 payload:  {cart}
