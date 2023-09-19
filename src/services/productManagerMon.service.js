@@ -148,24 +148,27 @@ export default class ProductManagerMon {
   }
   async addProduct(title, description, price, code, stock, category, fileData, owner) {
     try {
-      await Product.create({
-        title,
-        description,
-        price,
-        code,
-        stock,
-        category,
-        status: true,
-        picture: `images/${fileData}`,
-        owner: owner,
-      });
-
-      return "Producto agregado con éxito";
+        try {
+          if (title && description && price && code && stock && category && fileData && owner) {}
+        } catch (error) {
+          return "Error al agregar el producto: " + error.message;
+        }
+        const product = await Product.create({
+            title,
+            description,
+            price,
+            code,
+            stock,
+            category,
+            status: true,
+            picture: `images/${fileData}`,
+            owner: owner,
+        });
+        return product;
     } catch (error) {
-      console.error("Error al agregar el producto:", error);
-      return null;
+        return "Error al agregar el producto: " + error.message;
     }
-  }
+}
 
   async getProductById(id) {
     try {
@@ -201,8 +204,8 @@ export default class ProductManagerMon {
         toUpdate.stock = 0;
       }
 
-      await Product.findByIdAndUpdate(id, toUpdate, { new: true }).lean();
-      return "Producto cambiado correctamente";
+      const updatedProduct = await Product.findByIdAndUpdate(id, toUpdate, { new: true }).lean();
+      return updatedProduct;
     } catch (error) {
       console.error("Error al actualizar el producto:", error);
       return null;

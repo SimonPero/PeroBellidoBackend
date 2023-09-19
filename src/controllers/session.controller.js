@@ -1,6 +1,8 @@
 import UserDTO from "../DAO/DTOs/user.dto.js";
 import CurrentUserDTO from "../DAO/DTOs/currentUser.dto.js";
 import ProductManagerMon from "../services/productManagerMon.service.js";
+import { faker } from "@faker-js/faker";
+import envConfig from "../config/env.config.js";
 const productManager = new ProductManagerMon();
 
 
@@ -34,12 +36,28 @@ class SessionController {
     }
     async completeLogin(req, res) {
         if (!req.user) {
-            return res.status(500).render('error', { error: 'invalid credentials' });
+          return res.status(500).render('error', { error: 'invalid credentials' });
         }
-        const userDTO = new UserDTO(req.user);
-        req.session.user = userDTO;
+      
+        // Verificar si el usuario tiene rol "usuario" o "premium"
+        if (req.user.role === 'usuario' || req.user.role === 'premium') {
+          // Asignar el rol actual del usuario
+          req.session.user = new UserDTO(req.user);
+        } else {
+          // Asignar el rol de "admin" si no es "usuario" ni "premium"
+          const adminUser = {
+            firstName: faker.person.firstName(),
+            lastName: faker.person.lastName(),
+            isAdmin: true,
+            role: 'admin',
+            email: envConfig.adminName,
+          };
+          req.user= adminUser
+          
+        }
+      
         return res.redirect('/products');
-    }
+      }
     async failLogin(req, res) {
         return res.status(500).render('error', { error: 'fail to login' });
     }

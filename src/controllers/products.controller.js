@@ -45,21 +45,28 @@ class ProductsController {
     }
     async addProduct(req, res) { //checkear
         try {
-            const user = req.sesion?.user
-            let owner = ""
+            if (!req.session) {
+                return res.status(401).json({ error: 'Sesión no configurada' });
+            }
+            let user = req.session?.user || req.user; // Verifica si req.session.user está definido, de lo contrario, usa req.user
+            if (!user) {
+                return res.status(401).json({ error: 'Usuario no autenticado' });
+            }
+            let owner = "";
             if (user.role === "premium") {
-                owner = user.email
+                owner = user.email;
             } else if (user.isAdmin) {
-                owner = "admin"
+                owner = "admin";
             }
             const { title, description, price, code, stock, category } = req.body;
             const result = await productManager.addProduct(title, description, price, code, stock, category);
             return res.json({
                 status: 'success',
                 payload: { result }
-            })
+            });
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
     async updateProduct(req, res) {
@@ -78,7 +85,7 @@ class ProductsController {
     async deleteProduct(req, res) {
         try {
             const id = req.params.pid
-            const user = req.session?.user
+            const user = req.session?.user || req.user;
             const borrado = await productManager.deleteProduct(id, user)
             return res.json({
                 status: 'success',

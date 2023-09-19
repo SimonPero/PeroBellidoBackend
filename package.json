@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node ./src/app.js",
-    "dev": "nodemon -e yalm,js ./src/app.js"
+    "dev": "nodemon -e yalm,js ./src/app.js",
+    "test": "mocha ./test/testeos.test.js"
   },
   "keywords": [],
   "author": "",
@@ -49,6 +50,10 @@
     "winston": "^3.10.0"
   },
   "devDependencies": {
-    "@types/mongoose": "^5.11.97"
+    "@types/mongoose": "^5.11.97",
+    "chai": "^4.3.8",
+    "mocha": "^10.2.0",
+    "supertest": "^6.3.3",
+    "supertest-session": "^5.0.1"
   }
 }

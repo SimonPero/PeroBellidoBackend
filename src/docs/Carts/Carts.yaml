@@ -150,13 +150,13 @@ paths:
           required: true
           description: ID del carrito del que se eliminará el producto
           schema:
-            type: String
+            type: Number
         - name: pid
           in: path
           required: true
           description: ID del producto que se eliminará del carrito
           schema:
-            type: String
+            type: Number
       responses:
         "200":
           description: Producto eliminado exitosamente del carrito

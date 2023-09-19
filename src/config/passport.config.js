@@ -33,7 +33,6 @@ export function iniPassport() {
             isAdmin: true,
             role: 'admin',
           };
-          console.log('User authenticated as admin');
           return done(null, adminUser);
         } else {
           const user = await UserModel.findOne({ email: username });
