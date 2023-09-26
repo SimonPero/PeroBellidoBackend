@@ -211,14 +211,14 @@ export default class ProductManagerMon {
       return null;
     }
   }
-  async deleteProduct(id, user) {
+  async deleteProduct(id, email) {
     try {
       const product = await Product.findById(id)
-      if(!product.owner ===user.email && !user.isAdmin){
+      if(!product.owner ===email && !user.isAdmin){
         throw CustomError.createError({
           name: "CannotDeleteOtherPeopleProducts",
           message: "you tried to deleted the product of other person",
-          cause: `the product of the owner:${product.owner} was tried to be deleted by ${user.email}`,
+          cause: `the product of the owner:${product.owner} was tried to be deleted by ${email}`,
           code: EErros.PRODUCT_NOT_FOUND_ERROR,
         })
       }

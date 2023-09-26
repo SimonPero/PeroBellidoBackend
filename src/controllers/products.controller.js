@@ -86,6 +86,7 @@ class ProductsController {
         try {
             const id = req.params.pid
             const user = req.session?.user || req.user;
+            console.log(user)
             const borrado = await productManager.deleteProduct(id, user)
             return res.json({
                 status: 'success',

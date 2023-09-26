@@ -5,8 +5,8 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "node ./src/app.js",
-    "dev": "nodemon -e yalm,js ./src/app.js",
+    "dev": "nodemon -e yaml,js ./src/app.js --mode DEVELOPMENT",
+    "start": "node  ./src/app.js --mode PRODUCTION",
     "test": "mocha ./test/testeos.test.js"
   },
   "keywords": [],

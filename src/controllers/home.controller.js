@@ -14,7 +14,6 @@ class HomeController {
             const category = req.query.category;
             const sort = req.query.sort || "";
             const user = req.session.user;
-
             let query = {};
             if (category) {
                 query.category = category;

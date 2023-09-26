@@ -9,17 +9,36 @@ import winston from "winston";
 
 
 
-//multer
-const storage = multer.diskStorage({
+// Multer
+const documentStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "/public/images"));
+    cb(null, path.join(__dirname, "/public/images/temp"));
+  },
+
+  filename: (req, file, cb) => {
+    const fieldname = file.fieldname;
+    const originalname = file.originalname;
+    const customFilename = `${fieldname}-${originalname}`;
+    cb(null, customFilename);
+  },
+});
+
+const productStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "/public/images/temp"));
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
   },
 });
 
-export const uploader = multer({ storage });
+export const documentUploader = multer({
+  storage: documentStorage
+});
+
+
+
+export const productUploader = multer({ storage: productStorage });
 
 // https://flaviocopes.com/fix-dirname-not-defined-es-module-scope/
 
@@ -35,7 +54,7 @@ export async function connectMongo() {
     await connect(envConfig.mongoUrl);
     logger.info("Connected to the MongoDB!");
   } catch (e) {
-     logger.error("Error connecting to the MongoDB...");
+    logger.error("Error connecting to the MongoDB...");
     logger.error(e);
   }
 }

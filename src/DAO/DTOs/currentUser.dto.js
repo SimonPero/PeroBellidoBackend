@@ -5,5 +5,7 @@ export default class CurrentUserDTO {
         this.isAdmin = user.isAdmin;
         this.role = user.role;
         this.age = user.age ||"noAge";
+        this.documents = user.documents;
+        this.last_connection =user.last_connection;
     }
 }

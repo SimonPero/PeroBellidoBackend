@@ -1,9 +1,15 @@
 //users router
 import express from "express";
 import { UsersController } from "../controllers/users.controller.js";
-import { isAdmin } from "../middlewares/middleswares.js";
+import { isAdmin, isUser } from "../middlewares/middleswares.js";
+import { documentUploader } from "../utils.js";
 export const usersRouter = express.Router();
 const usersController = new UsersController()
 
 usersRouter.get("/", usersController.getAllUsers)
+usersRouter.post("/:uid/documents", isUser, documentUploader.fields([
+    { name: 'identificacion', maxCount: 1 },
+    { name: 'comprobanteDomicilio', maxCount: 1 },
+    { name: 'comprobanteEstadoCuenta', maxCount: 1 }
+  ]), usersController.uploadDocuments);
 usersRouter.put("/premium/:uid", isAdmin, usersController.volverPremium)

@@ -38,16 +38,14 @@ class SessionController {
         if (!req.user) {
           return res.status(500).render('error', { error: 'invalid credentials' });
         }
-      
-        // Verificar si el usuario tiene rol "usuario" o "premium"
         if (req.user.role === 'usuario' || req.user.role === 'premium') {
-          // Asignar el rol actual del usuario
-          req.session.user = new UserDTO(req.user);
+            req.user.last_connection = Date();
+            req.user.save()
+            req.session.user = new UserDTO(req.user);
         } else {
-          // Asignar el rol de "admin" si no es "usuario" ni "premium"
           const adminUser = {
-            firstName: faker.person.firstName(),
-            lastName: faker.person.lastName(),
+            firstName: "ad",
+            lastName: "min",
             isAdmin: true,
             role: 'admin',
             email: envConfig.adminName,
@@ -63,7 +61,6 @@ class SessionController {
     }
     logOut(req, res) {
         if (req.user && req.user.isAdmin) {
-            // Si el usuario es un administrador, eliminar la sesión completa
             req.session.destroy((err) => {
                 if (err) {
                     return res.status(500).render('error', { error: 'No se pudo cerrar la sesión' });
@@ -71,7 +68,8 @@ class SessionController {
                 return res.redirect('/api/session/login');
             });
         } else {
-            // Si el usuario no es un administrador, solo cerrar la sesión del usuario actual
+            req.user.last_connection = Date();
+            req.user.save()
             req.session.destroy((err) => {
                 if (err) {
                     return res.status(500).render('error', { error: 'No se pudo cerrar la sesión' });

@@ -27,7 +27,7 @@
     <br>
     <a href="/api/session/current">bienvenido {{#if pagina.user.isAdmin}}{{pagina.user.role}}{{else}}{{pagina.user.firstName}}{{/if}}, revisa tu perfil</a>
     <br>
-    <a href=""></a>
+    <a href='/api/users/{{pagina.user._id}}/documentsForm'>Volverse premium<a></a>
   </header>
 
   {{#if pagina.pagination.hasPrevPage}}

@@ -6,7 +6,27 @@ Nombre:
 Edad:
 {{user.age}}
 <br />
+Ultima Conexión: {{user.last_connection}}
+<br />
+Credenciales: {{user.documents}}
+<br />
+<section>
+ <form class="form-custom" action="/api/users/{{id}}/documents" method="post" enctype="multipart/form-data">
+                <label for="identificacion">Identificación:</label>
+                <input type="file" name="identificacion" id="identificacion"><br>
+
+                <label for="comprobanteDomicilio">Comprobante de domicilio:</label>
+                <input type="file" name="comprobanteDomicilio" id="comprobanteDomicilio"><br>
+
+                <label for="comprobanteEstadoCuenta">Comprobante de estado de cuenta:</label>
+                <input type="file" name="comprobanteEstadoCuenta" id="comprobanteEstadoCuenta"><br>
+
+                <button type="submit">Subir archivos</button>
+            </form>
+</section>
+<br />
 <a href='/api/session/administracion'>Ver datos super secretos<a>
 <a href="/products">Volver a los Productos</a>
 <br />
 <a href='/api/session/logout'>Salir!</a>
+

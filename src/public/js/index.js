@@ -13,7 +13,7 @@ const userRoleElement = document.querySelector(".user-owner");
 const owner = userRoleElement.getAttribute("user-owner-id");
 
 function deleteProduct(id) {
-  socket.emit("delete-product", id)
+  socket.emit("delete-product", id, owner)
 }
 // Handlebars template
 const productsTemplate = `

@@ -7,7 +7,7 @@ import {recoverEmailRouter} from "./routes/recoverEmaillRouter.js"
 import handlerbars from "express-handlebars";
 import path from "path";
 import { usersRouter } from "./routes/users.router.js";
-import { __dirname, connectMongo, uploader } from "./utils.js";
+import { __dirname, connectMongo, productUploader, initLogger, addLogger} from "./utils.js";
 import { _dirname_base } from "./dir.name.js";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUiExpress from 'swagger-ui-express'
@@ -22,9 +22,9 @@ import MongoStore from 'connect-mongo';
 import envConfig from "./config/env.config.js";
 import errorHandler  from "./middlewares/errors.js"
 import ProductManagerMon from "./services/productManagerMon.service.js";
-import { initLogger, logger} from "./utils.js";
-import {addLogger} from "./utils.js";
 import loggerRouter from "./routes/logger.router.js";
+import { isPremium, isUser } from "./middlewares/middleswares.js";
+import fs from "fs"
 const productManager = new ProductManagerMon()
 
 initLogger()
@@ -73,9 +73,9 @@ socketServer.on("connection", (socket) => {
       console.log(error);
     }
   });
-  socket.on("delete-product", async (productId) => {
+  socket.on("delete-product", async (productId, email) => {
     try {
-      await productManager.deleteProduct(productId);
+      await productManager.deleteProduct(productId, email);
       socketServer.emit("product_deleted", productId);
     } catch (error) {
       console.log(error);
@@ -110,9 +110,16 @@ app.set("view engine", "handlebars");
 app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
-app.post("/realtimeproducts", uploader.single("file"), (req, res) => {
+app.post("/realtimeproducts",isUser,isPremium, productUploader.single("file"), (req, res) => {
   try {
-    res.json({ filename: req.file.filename });
+    const userEmail = req.session?.user.email;
+    const userProductsFolder = path.join(__dirname, `/public/images/${userEmail}/products`);
+    if (!fs.existsSync(userProductsFolder)) {
+      fs.mkdirSync(userProductsFolder, { recursive: true });
+    }
+    const destinationPath = path.join(userProductsFolder, req.file.originalname);
+    fs.renameSync(req.file.path, destinationPath);
+    res.json({ filename: req.file.originalname });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Error interno del servidor" });

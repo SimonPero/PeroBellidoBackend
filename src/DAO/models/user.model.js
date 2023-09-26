@@ -1,5 +1,11 @@
 import { Schema, model } from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate-v2'
+const documentSchema = new Schema({
+  name: {
+    type: String
+  },
+  reference: { type: String }
+})
 const userSchema = new Schema({
   firstName: {
     type: String,
@@ -40,6 +46,11 @@ const userSchema = new Schema({
   },
   cart: {
     type: String,
+  },
+  documents: { type: [documentSchema], default: [], maxlength: 3 },
+  last_connection: {
+    type:Date,
+    default: Date(),
   },
 });
 userSchema.plugin(mongoosePaginate);

@@ -46,17 +46,20 @@ export default class UserManagerMon {
 
   async upgradeUserToPremium(uid) {
     try {
-      // Find the user by UID
+      
       const user = await this.getUserByUserName(uid);
-
       if (!user) {
-        // Handle the case where the user is not found
         throw new Error('User not found');
       }
+      const hasIdentificacion = user.documents.some(doc => doc.name === 'identificacion');
+      const hasComprobanteDomicilio = user.documents.some(doc => doc.name === 'comprobanteDomicilio');
+      const hasComprobanteEstadoCuenta = user.documents.some(doc => doc.name === 'comprobanteEstadoCuenta');
+  
+      if (!(hasIdentificacion && hasComprobanteDomicilio && hasComprobanteEstadoCuenta)) {
+        throw new Error('User does not have all required documents');
+      }
       user.role = user.role === 'premium' ? 'usuario' : 'premium';
-
       await user.save();
-
       return user;
     } catch (error) {
       throw error;
@@ -98,6 +101,39 @@ export default class UserManagerMon {
       return user;
     } catch (error) {
       throw error;
+    }
+  }
+  async saveDocuments(identificacionFile, comprobanteDomicilioFile, comprobanteEstadoCuentaFile, userName) {
+    try {
+      const user = await this.getUserByUserName(userName);
+      if (identificacionFile) {
+        user.documents = user.documents.filter(doc => doc.name !== 'identificacion');
+        user.documents.push({
+          name: 'identificacion',
+          reference: identificacionFile.originalname + ' ' + userName
+        });
+      }
+      if (comprobanteDomicilioFile) {
+        user.documents = user.documents.filter(doc => doc.name !== 'comprobanteDomicilio');
+        user.documents.push({
+          name: 'comprobanteDomicilio',
+          reference: comprobanteDomicilioFile.originalname + ' ' + userName
+        });
+      }
+      if (comprobanteEstadoCuentaFile) {
+        user.documents = user.documents.filter(doc => doc.name !== 'comprobanteEstadoCuenta');
+        user.documents.push({
+          name: 'comprobanteEstadoCuenta',
+          reference: comprobanteEstadoCuentaFile.originalname + ' ' + userName
+        });
+      }
+      await UserModel.updateOne({ _id: user._id.toString() }, user);
+      return {
+        status: 'success',
+        payload: { user }
+      };
+    } catch (e) {
+      throw e;
     }
   }
 }
