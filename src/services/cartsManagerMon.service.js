@@ -1,195 +1,146 @@
-
-import { Cart } from '../DAO/models/cart.model.js';
+//cartManagerService
+import CartsManagerMonDao from '../DAO/classes/mongoose/cartsManagerMon.js';
 import EErros from '../services/errors/enum-errors.service.js';
 import CustomError from '../services/errors/custom-error.service.js';
-import ProductManagerMon from '../DAO/classes/mongoose/productManagerMon.js';
+import ProductManagerMon from './productManagerMon.service.js';
 import { Types } from 'mongoose';
+import { returnMessage } from '../utils.js';
+import { fileURLToPath } from 'url';
 
-
-
-const  productManager = new ProductManagerMon()
+const __dirname = fileURLToPath(import.meta.url)
+const cartsManagerMonDao = new CartsManagerMonDao()
+const productManager = new ProductManagerMon()
 
 
 export default class CartsManager {
   async addCart() {
     try {
-      const cart = new Cart();
-      cart.cartId = String(Math.round(Math.random() * 100000));
-      cart.products = [];
-      await cart.save();
-      return cart.cartId;
+      const cart = cartsManagerMonDao.createCart()
+      return cart.data;
     } catch (error) {
-      console.log(`Error al agregar el cart: ${error}`);
       throw error;
     }
   }
 
   async getCartById(cartId) {
     try {
-      const cart = await Cart.findOne({ cartId }).populate('products.idProduct');
-      if (cart) {
-        return cart;
-      } else {
-        throw CustomError.createError({
-          name:"CartNotFoundError",
-          message:" no cart was found",
-          cause:`no cart with the id: ${cartId} was found`,
-          code:EErros.CART_NOT_FOUND_ERROR,
-        })
-      }
+      const cart = await cartsManagerMonDao.getCartByIdAndPopulate(cartId)
+      return cart.data;
     } catch (error) {
-      console.error(`Error al obtener el cart por ID: ${error}`);
-      throw error;
+      throw returnMessage("failure", error.message, error.data, __dirname, "getCartById")
     }
   }
 
-  async addProductToCart(cartId, productId, user) {  //revisar
+  async addProductToCart(cartId, productId, user) {
     try {
-      const cart = await Cart.findOne({ cartId });
-      if (!cart) {
-        throw CustomError.createError({
-          name:"CartNotFoundError",
-          message:" no cart was found",
-          cause:`no cart with the id: ${cartId} was found`,
-          code:EErros.CART_NOT_FOUND_ERROR,
-        })
-      }
+      const cart = await cartsManagerMonDao.getCartById(cartId)
       const product = await productManager.getProductById(productId)
-      if(product.owner === user.email){
-        throw CustomError.createError({
-          name:"NotAvailableForPurchase",
-          message:" you can not buy your own products",
-          cause:`you were trying to buy one of your own products`,
-          code:EErros.PRODUCT_NOT_FOUND_ERROR,
+      if (product.data.owner === user.email) {
+        const errorMessage = CustomError.createError({
+          name: "NotAvailableForPurchase",
+          message: " can not buy own products",
+          cause: `someone was trying to buy one of his own products`,
+          code: EErros.PRODUCT_NOT_AVAILABLE_ERROR,
         })
+        throw returnMessage("warn", errorMessage.message, errorMessage, __dirname, "addProductToCart")
       }
-      const existingProduct = cart.products.find((p) => new Types.ObjectId(p.idProduct).equals(new Types.ObjectId(productId)));
+      const existingProduct = cart.data.products.find((p) => new Types.ObjectId(p.idProduct).equals(new Types.ObjectId(productId)));
       if (existingProduct) {
         if (product.stock > existingProduct.quantity) {
           existingProduct.quantity++;
         } else {
-          console.log('No se puede agregar el producto al carrito, el stock es cero.');
+          const errorMessage = CustomError.createError({
+            name: "NotAvailableForPurchase",
+            message: " you can not buy this product",
+            cause: `the stock is this product is zero`,
+            code: EErros.PRODUCT_NOT_AVAILABLE_ERROR,
+          })
+          returnMessage("warn", errorMessage.message, errorMessage, __dirname, "addProductToCart")
         }
       } else {
-        cart.products.push({ idProduct: productId, quantity: 1 });
+        cart.data.products.push({ idProduct: productId, quantity: 1 });
       }
+      await cart.data.save();
 
-      await cart.save();
-      return 'Producto agregado al carrito con éxito.';
+      return returnMessage("success", 'Producto agregado al carrito con éxito.', null, __dirname, "addProductToCart");
     } catch (error) {
-      console.error(`Error al agregar el producto al carrito: ${error}`);
-      throw error;
+
+      throw returnMessage("warn", error.message, error.data, __dirname, "addProductToCart");
     }
   }
 
   async deleteProductFromCart(cartId, productId) {
     try {
-      const cart = await Cart.findOne({ cartId });
-      if (!cart) {
-        throw CustomError.createError({
-          name:"CartNotFoundError",
-          message:" no cart was found",
-          cause:`no cart with the id: ${cartId} was found`,
-          code:EErros.CART_NOT_FOUND_ERROR,
-        })
-      }
+      const cart = await cartsManagerMonDao.getCartById(cartId)
 
       const productIndex = cart.products.findIndex((p) => p.idProduct.toString() === productId);
       if (productIndex !== -1) {
-        cart.products.splice(productIndex, 1);
-        await cart.save();
-        return 'Producto eliminado del carrito con éxito.';
-      } else {
-        return 'Error: Producto no encontrado en el carrito.';
+        cart.data.products.splice(productIndex, 1);
+        await cart.data.save();
+        return returnMessage("success", "producto eleminado correctamente", null, __dirname, "deleteProductFromCart");
       }
     } catch (error) {
-      console.error(`Error al eliminar el producto del carrito: ${error}`);
-      throw error;
+
+      throw returnMessage("failure", "failed to delete product from cart", error.data, __dirname, "deleteProductFromCart");
     }
   }
 
   async updateProductsOfCart(cartId, newProducts) {
-    const cart = await Cart.findOne({ cartId });
-    if (!cart) {
-      throw CustomError.createError({
-        name:"CartNotFoundError",
-        message:" no cart was found",
-        cause:`no cart with the id: ${cartId} was found`,
-        code:EErros.CART_NOT_FOUND_ERROR,
-      })
+    try {
+      const cart = await cartsManagerMonDao.getCartById(cartId)
+      cart.data.products = newProducts;
+      await cart.data.save();
+       return returnMessage("success", "Carrito actualizado con éxito", null, __dirname, "updateProductsOfCart");
+    } catch (error) {
+      throw returnMessage("failure", "failed to updated products of cart", error.data, __dirname, "updateProductsOfCart");
     }
-
-    cart.products = newProducts;
-    await cart.save();
   }
 
   async updateProductQuantityInCart(cartId, productId, quantity) {
     try {
-      const cart = await Cart.findOne({ cartId });
-      if (!cart) {
-        throw CustomError.createError({
-          name:"CartNotFoundError",
-          message:" no cart was found",
-          cause:`no cart with the id: ${cartId} was found`,
-          code:EErros.CART_NOT_FOUND_ERROR,
-        })
-      }
+      const cart = await cartsManagerMonDao.getCartById(cartId)
 
-      const product = cart.products.find((p) => p.idProduct.toString() === productId);
-      if (!product) {
-        throw CustomError.createError({
-          name:"ProductsNotFoundError",
-          message:" no product was found",
-          cause:`no product with the id: ${productId} was found`,
-          code:EErros.PRODUCT_NOT_FOUND_ERROR,
-        })
-      }
+      const product = await productManager.getProductById(productId)
+      
 
       const quantityValue = Number(quantity);
       if (isNaN(quantityValue)) {
-        throw new Error("La cantidad proporcionada no es un número válido");
+        const errorMessage = CustomError.createError({
+          name: "NotValidType",
+          message: "the quantity given is not a number",
+          cause: `quantity is not a number`,
+          code: EErros.INVALID_TYPES_ERROR,
+        })
+        throw returnMessage("failure", errorMessage.message, errorMessage, __dirname, "updateProductQuantityInCart")
       }
 
-      product.quantity = product.quantity + quantityValue;
+      product.data.quantity = product.data.quantity + quantityValue;
 
-      await cart.save();
+      await cart.data.save();
+      return returnMessage("success","successfully updated quantity of product", null, __dirname, "updateProductQuantityInCart")
     } catch (error) {
       console.error("Error al actualizar la cantidad de producto:", error);
-      throw error;
+      throw returnMessage("failure", "Error al actualizar la cantidad de producto", error.data, __dirname, "updateProductQuantityInCart")
     }
   }
 
   async deleteAllProductsFromCart(cartId) {
-    // Buscar el carrito por su ID
-    const cart = await Cart.findOne({ cartId });
-    if (!cart) {
-      throw CustomError.createError({
-        name:"CartNotFoundError",
-        message:" no cart was found",
-        cause:`no cart with the id: ${cartId} was found`,
-        code:EErros.CART_NOT_FOUND_ERROR,
-      })
-    }
-    // Eliminar todos los productos del carrito
-    cart.products = [];
-    // Guardar los cambios en la base de datos
-    await cart.save();
+   try {
+    const cart = await cartsManagerMonDao.getCartById(cartId)
+    cart.data.products = [];
+    await cart.data.save();
+    return returnMessage("success", "success in deleting all products from cart", null, __dirname, "deleteAllProductsFromCart")
+   } catch (error) {
+    throw returnMessage("failure", "failure to delete all products from cart", error.data, __dirname, "deleteAllProductsFromCart")
+   }
   }
 
   async getAllCarts() {
     try {
-      const carts = await Cart.find().populate('products');
-      if(!carts){
-        throw CustomError.createError({
-          name:"CartsNotFoundError",
-          message:" no carts was found",
-          cause:`we werent able to found any cart, cartsdb is empty`,
-          code:EErros.CART_NOT_FOUND_ERROR,
-        })
-      }
-      return carts;
+      const carts = await cartsManagerMonDao.getAllCartsAndPopulate()
+      return carts.data;
     } catch (error) {
-      console.error(`Error al obtener todos los carts: ${error}`);
+      throw returnMessage("failure", error.message, error.data, __dirname, "getAllCarts")
     }
   }
 }

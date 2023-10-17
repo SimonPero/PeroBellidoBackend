@@ -17,3 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
+async function DeleteOldUsers(cart) {
+    const responde = await fetch('/api/users', {
+        method: 'DELETE',
+    })
+}

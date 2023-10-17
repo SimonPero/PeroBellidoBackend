@@ -50,7 +50,7 @@ export default class ProductManager {
                 return "Producto agregado con exito";
             }
         } catch (error) {
-            console.log(error);
+            console.log(error); //eliminar
         }
     } catch(error) {
         console.error(`Error reading file at path ${this.path}: ${error}`);

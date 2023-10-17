@@ -1,7 +1,9 @@
+import HTTPStatus from "http-status-codes"
+
 class TestChatController {
     viewChat(req, res) {
         const user = req.session.user
-        return res.render("test-chat", {user});
+        return res.status(HTTPStatus.OK).render("test-chat", {user});
     }
 }
 

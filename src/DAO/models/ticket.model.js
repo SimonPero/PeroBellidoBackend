@@ -10,10 +10,30 @@ const ticketSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-  amount: {
-    type: Number,
-    required: true,
+  totalAmount:{
+    type:Number, 
+    required:true,
   },
+  productsPurchased: [
+    {
+      idProduct: {
+        type: String,
+        required: true,
+      },
+      subtotal: {
+        type: Number,
+        required: true,
+      },
+      title: {
+        type: String,
+        required: true,
+      },
+      quantityPurchased: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
   purchaser: {
     type: String,
     required: true,

@@ -15,7 +15,7 @@ sessionRouter.post('/login', passport.authenticate('login', { failureRedirect: '
 sessionRouter.get('/faillogin', sessionController.failLogin);
 sessionRouter.get('/logout', sessionController.logOut);
 sessionRouter.get('/current', isUser, sessionController.viewPerfil);
-sessionRouter.get('/administracion', isUser, isAdmin, sessionController.viewAdmin);
+sessionRouter.get('/administracion', isAdmin, sessionController.viewAdmin);
 sessionRouter.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
 sessionRouter.get('/githubcallback', passport.authenticate('github', { failureRedirect: '/login' }), sessionController.gitHubLogin);
 sessionRouter.get('/show', sessionController.sessionJson);

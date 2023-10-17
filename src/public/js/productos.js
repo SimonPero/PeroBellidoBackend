@@ -39,24 +39,15 @@ async function handleAgregarButtonClick(liId) {
     });
     const data = await response.json();
   } catch (error) {
-    console.log(error);
   }
 }
 
 
 
 async function handleVerDetallesClick(productId) {
-  try {
     window.location.href = `/products/${productId}`;
-  } catch (error) {
-    console.log(`Error al obtener detalles del producto (${productId}):`, error.message);
-  }
 }
 
 async function handleVerCartClick(cart) {
-  try {
     window.location.href = `products/carts/${cart} `
-  } catch (error) {
-    console.log(`Error al obtener detalles del producto (${cart}):`, error.message);
-  }
 }

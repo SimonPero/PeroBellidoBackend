@@ -66,16 +66,15 @@ submitButton.addEventListener("click", (e) => {
 
   const formData = new FormData();
   formData.append("file", file);
-
+fetch("")
   fetch("/realtimeproducts", {
     method: "POST",
     body: formData,
   })
-    .then((response) => response.json())
+    
     .then((data) => {
       const fileData = data.filename; // Obtener el nombre del archivo guardado
 
       socket.emit("new-product", title, description, price, code, stock, category, fileData, owner);
     })
-    .catch((error) => console.log(error));
 })

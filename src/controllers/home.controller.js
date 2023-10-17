@@ -2,6 +2,7 @@ import CartsManager from "../services/cartsManagerMon.service.js";
 import ProductManagerMon from "../services/productManagerMon.service.js";
 import TicketManagerMon from "../services/ticketManagerMon.service.js";
 import { generateUser } from "../utils.js";
+import HTTPStatus from "http-status-codes"
 const cartsManager = new CartsManager()
 const productManager = new ProductManagerMon()
 const ticketManager = new TicketManagerMon()
@@ -13,7 +14,7 @@ class HomeController {
             const limit = parseInt(req.query.limit);
             const category = req.query.category;
             const sort = req.query.sort || "";
-            const user = req.session.user;
+            const user = req.session?.user || req.user;
             let query = {};
             if (category) {
                 query.category = category;
@@ -25,37 +26,46 @@ class HomeController {
                 sort: {},
             };
             const productsData = await productManager.getProducts(query, options, sort);
-            const pagina = await productManager.revision(productsData, user, category, limit,)
-            return res.render("index", { pagina })
-
+            const pagina = await productManager.revision(productsData.data, user, category, limit);
+            res.status(HTTPStatus.OK).render("index", { pagina: pagina.data });
         } catch (error) {
-            console.log(error);
-            res.status(500).send("Internal Server Error");
+            if (error.message) {
+                res.status(HTTPStatus.BAD_REQUEST).render("error", { error: error.message });
+            } else {
+                res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+            }
         }
     }
     async addProductToCart(req, res) { //revisar
         try {
             const productId = req.body.productId;
-            const user = req.session.user
+            const user = req.session.user;
             const cartId = req.params.cid;
             const cartWithProduct = await cartsManager.addProductToCart(cartId, productId, user);
-            return res.json({
+            return res.status(HTTPStatus.OK).json({
                 status: 'success',
-                payload: { cart: cartWithProduct }
-            })
+                payload: { cart: cartWithProduct.message }
+            });
         } catch (error) {
-            console.log(error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            if (error.message) {
+                res.status(HTTPStatus.BAD_REQUEST).render("error", { error: error.message });
+            } else {
+                res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+            }
         }
     }
     async getProductById(req, res) {
         try {
             const id = req.params.productId;
+            const cartId = req.session.user.cart;
             const product = await productManager.getProductById(id);
-            res.render("product-details", product);
+            res.status(HTTPStatus.OK).render("product-details", { product: product.data, cart: cartId });
         } catch (error) {
-            console.log(error);
-            res.status(500).send("Internal Server Error");
+            if (error.message) {
+                res.status(HTTPStatus.BAD_REQUEST).render("error", { error: error.message });
+            } else {
+                res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+            }
         }
     }
     async getCartById(req, res) {
@@ -63,9 +73,13 @@ class HomeController {
             const id = req.params.cid;
             const cart = await cartsManager.getCartById(id);
             const plainCart = cart.toObject();
-            res.render("cart-product", { cart: plainCart });
+            res.status(HTTPStatus.OK).render("cart-product", { cart: plainCart });
         } catch (error) {
-            console.log(error);
+            if (error.message) {
+                res.status(HTTPStatus.BAD_REQUEST).render("error", { error: error.message });
+            } else {
+                res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+            }
         }
     }
     async purchase(req, res) {
@@ -73,11 +87,14 @@ class HomeController {
         const userName = req.session.user.firstName;
         try {
             const compra = await ticketManager.comprarProductos(cart, userName);
-            const compraRealizada = compra.mensaje
-            res.send(compraRealizada);
+            const compraRealizada = compra.message;
+            res.status(HTTPStatus.OK).send(compraRealizada);
         } catch (error) {
-            console.error("Error en la compra:", error);
-            res.status(500).send("Ha ocurrido un error en la compra");
+            if (error.message) {
+                res.status(HTTPStatus.BAD_REQUEST).render("error", { error: error.message });
+            } else {
+                res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+            }
         }
     }
     async mockModule(req, res) {
@@ -86,9 +103,9 @@ class HomeController {
             for (let i = 0; i < 100; i++) {
                 users.push(generateUser());
             }
-            res.json({ status: "success", payload: users });
+            res.status(HTTPStatus.OK).json({ status: "success", payload: users });
         } catch (error) {
-            console.error("Error en la carga del mock:", error);
+            res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
         }
     }
 }

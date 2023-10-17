@@ -11,6 +11,7 @@
         <p>Código: {{this.code}}</p>
         <p>Stock: {{this.stock}}</p>
         <p>Categoría: {{this.category}}</p>
+        <p>Owner: {{this.owner}}</p>
         <img src="/public/{{this.picture}}" alt="">
         <button class="btn-delete"
           onclick="deleteProduct('{{#if this._id}}{{this._id}}{{else}}{{this.id}}{{/if}}')">Eliminar</button>

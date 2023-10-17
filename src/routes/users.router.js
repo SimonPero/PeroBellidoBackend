@@ -6,7 +6,8 @@ import { documentUploader } from "../utils.js";
 export const usersRouter = express.Router();
 const usersController = new UsersController()
 
-usersRouter.get("/", usersController.getAllUsers)
+usersRouter.get("/", isAdmin,usersController.getAllUsers)
+usersRouter.delete("/", isAdmin, usersController.deleteOldUsers)
 usersRouter.post("/:uid/documents", isUser, documentUploader.fields([
     { name: 'identificacion', maxCount: 1 },
     { name: 'comprobanteDomicilio', maxCount: 1 },

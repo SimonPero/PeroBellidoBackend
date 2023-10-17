@@ -1,5 +1,7 @@
 <!-- users.handlebars -->
 <section class="container">
+    <button onclick="DeleteOldUsers()"> Delete Old Users </button>
+
     {{#if users.pagination.hasPrevPage}}
     <a style='font-size: 20;'
         href='/api/users?{{#if users.category}}category={{users.category}}&{{/if}}{{#if users.sort}}sort={{users.sort}}&{{/if}}page={{users.pagination.prevPage}}{{#if users.limit}}&limit={{users.limit}}{{/if}}'>←{{users.prevPage}}</a>
@@ -15,7 +17,7 @@
     {{#each users.users}}
     <li>
         <h3>{{this.firstName}} {{this.lastName}}</h3>
-        <p>Age: {{this.age}}</p>
+        <p>email: {{this.email}}</p>
         <p>Rol: {{this.role}}</p>
         <button class="premium-button" data-email="{{this.email}}">VolverPremium</button>
     </li>

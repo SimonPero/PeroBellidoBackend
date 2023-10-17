@@ -1,7 +1,7 @@
 import passport from 'passport';
 import local from 'passport-local';
 import { createHash, isValidPassword } from '../utils.js';
-import { UserModel } from '../DAO/models/user.model.js';
+import UserManagerMon from '../services/userManagerMon.service.js';
 import EErros from '../services/errors/enum-errors.service.js';
 import CustomError from '../services/errors/custom-error.service.js';
 import fetch from 'node-fetch';
@@ -9,8 +9,12 @@ import GitHubStrategy from 'passport-github2';
 import envConfig from './env.config.js';
 import { generateUserErrorInfo } from '../services/errors/info-error.service.js';
 import CartsManager from '../services/cartsManagerMon.service.js';
-const cartsManager = new CartsManager()
+import { returnMessage } from '../utils.js';
+import { fileURLToPath } from 'url';
 
+const __dirname = fileURLToPath(import.meta.url)
+const cartsManager = new CartsManager()
+const userManagerMon = new UserManagerMon()
 
 const LocalStrategy = local.Strategy;
 
@@ -29,35 +33,22 @@ export function iniPassport() {
       try {
         if (username === envConfig.adminName && password === envConfig.adminPassword) {
           const adminUser = {
-            email: username,
+            firstName: "ad",
+            lastName: "min",
             isAdmin: true,
             role: 'admin',
-          };
+            email: envConfig.adminName,
+        };
           return done(null, adminUser);
         } else {
-          const user = await UserModel.findOne({ email: username });
-
-          if (!user) {
-            throw CustomError.createError({
-              name: 'UserNotFoundError',
-              message: 'User not found',
-              cause: `'User Not Found with username (email) ' + ${username} `,
-              code: EErros.USER_NOT_FOUND_ERROR,
-            });
-          }
-
-          if (!isValidPassword(password, user.password)) {
-            return error = CustomError.createError({
-              name: 'InvalidPasswordError',
-              cause: "inputed password didnt fit with existing password",
-              message: 'Invalid password',
-              code: EErros.INVALID_PASSWORD_ERROR,
-            });
+          const user = await userManagerMon.getUserByUserName(username)
+          if (user.data) {
+            throw "fail"
           }
           return done(null, user);
         }
       } catch (err) {
-        return done(err);
+         return done(null,null);
       }
     })
   );
@@ -85,29 +76,24 @@ export function iniPassport() {
           const emailDetail = emails.find((email) => email.verified == true);
 
           if (!emailDetail) {
-            throw CustomError.createError({
+            const errorMessage = CustomError.createError({
               name: 'EmailNotFoundError',
               message: 'Cannot get a valid email for this user',
               cause: "no email was found in githublogin for us to use",
               code: EErros.EMAIL_NOT_FOUND_ERROR,
             });
+            throw returnMessage("failure", errorMessage.message, errorMessage, __dirname, "PassportEmailLooker(NotAfunction)")
           }
 
           profile.email = emailDetail.email;
 
-          let user = await UserModel.findOne({ email: profile.email });
+          let user = await userManagerMon.getUserByUserName(profile.email)
 
-          if (user) {
-            console.log('User already exists');
-            throw CustomError.createError({
-              name: 'UserExistsError',
-              message: 'User already exists',
-              cause: "email already in use",
-              code: EErros.USER_EXISTS_ERROR,
-            });
+          if (user.email) {
+            return done(null, user);
           }
 
-          if (!user) {
+          if (user.data) {
             const newUser = {
               email: profile.email,
               firstName: profile._json.name || profile._json.login || 'noname',
@@ -118,16 +104,14 @@ export function iniPassport() {
               github: true,
               cart: await cartsManager.addCart(),
             };
-            let userCreated = await UserModel.create(newUser);
-            console.log('User Registration succesful');
+            let userCreated = await userManagerMon.createUser(newUser)
             return done(null, userCreated);
           } else {
-            console.log('User already exists');
             return done(null, user);
           }
         } catch (e) {
-          console.log('Error en auth github');
-          return done(e);
+          
+          return done(null, null);
         }
       }
     )
@@ -143,48 +127,42 @@ export function iniPassport() {
       async (req, username, password, done) => {
         try {
           const { email, firstName, lastName, age } = req.body;
-          let user = await UserModel.findOne({ email: username });
-
-          if (user) {
-            console.log('User already exists');
-            throw CustomError.createError({
-              name: 'UserExistsError',
-              message: 'User already exists',
-              cause: "email already in use",
-              code: EErros.USER_EXISTS_ERROR,
-            });
-          }
-
-          if (user) {
-            console.log('User already exists');
+          let user = await userManagerMon.getUserByUserNamePassport(username)
+          if (user.email) {
+            const errorMessage = CustomError.createError({
+               name: 'UserExistsError',
+               message: 'User already exists',
+               cause: "email already in use",
+               code: EErros.USER_EXISTS_ERROR,
+             });
+            returnMessage("failure", errorMessage.message, errorMessage, __dirname, "PassportGetUserByUserName")
             return done(null, false);
+           }
+           if (user === "create") {
+            const newUser = {
+              email,
+              firstName,
+              lastName,
+              isAdmin: false,
+              age,
+              cart: await cartsManager.addCart(),
+              password: createHash(password),
+            };
+
+            if (newUser.age < 13 || newUser.age > 100 || !newUser.age || !newUser.email || !newUser.firstName || !newUser.lastName || !newUser.password) {
+              const errorMessage = CustomError.createError({
+                name: 'UserAgeValidationError',
+                message: 'User age is not validate',
+                cause: generateUserErrorInfo(newUser),
+                code: EErros.INVALID_TYPES_ERROR,
+              });
+              throw returnMessage("failure", errorMessage.message, errorMessage, __dirname, "PassportValidation(NotAfunction)")
+            }
+            let userCreated = await userManagerMon.createUser(newUser)
+            return done(null, userCreated);
           }
-
-          const newUser = {
-            email,
-            firstName,
-            lastName,
-            isAdmin: false,
-            age,
-            cart: await cartsManager.addCart(),
-            password: createHash(password),
-          };
-
-          if (newUser.age < 13 || newUser.age > 100 || !newUser.age || !newUser.email || !newUser.firstName || !newUser.lastName || !newUser.password) {
-            throw CustomError.createError({
-              name: 'UserAgeValidationError',
-              message: 'User age is not validate',
-              cause: generateUserErrorInfo(newUser),
-              code: EErros.INVALID_TYPES_ERROR,
-            });
-          }
-
-          let userCreated = await UserModel.create(newUser);
-          console.log('User Registration succesful');
-          return done(null, userCreated);
         } catch (e) {
-          console.log('Error in register');
-          return done(e);
+          return done(null, e);
         }
       }
     )
@@ -199,21 +177,21 @@ export function iniPassport() {
       done(null, user._id);
     }
   });
-
+  
   passport.deserializeUser(async (id, done) => {
     if (isTemporaryId(id)) {
       const adminUser = {
-        email: 'adminCoder@coder.com',
+        firstName: "ad",
+        lastName: "min",
         isAdmin: true,
         role: 'admin',
-      };
+        email: envConfig.adminName,
+    };
       done(null, adminUser);
     } else {
       try {
-        const user = await UserModel.findById(id);
-        if (!user) {
-          throw new Error('User not found');
-        }
+      
+        const user = await userManagerMon.getUserById(id)
         done(null, user);
       } catch (error) {
         done(error);

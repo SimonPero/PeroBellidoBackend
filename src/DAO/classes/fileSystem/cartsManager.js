@@ -35,7 +35,7 @@ export default class CartsManager {
             await fs.promises.writeFile(this.path, cartsString);
             return "Cart agregado con exito";
         } catch (error) {
-            console.log(`Error reading products file: ${error}`);
+            console.log(`Error reading products file: ${error}`); //eliminar
         }
     }
 

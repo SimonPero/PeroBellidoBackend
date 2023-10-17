@@ -1,112 +1,140 @@
-
+//cartController
 import CartsManager from "../services/cartsManagerMon.service.js";
+import HTTPStatus from "http-status-codes"
 
-const cartsManager= new CartsManager()
+const cartsManager = new CartsManager()
 
 class CartsController {
     async addCart(req, res) {
         try {
-            const cart = await cartsManager.addCart()
-            return res.json({
-                status: 'success',
-                payload:  {cart}
-            })
+            const cart = await cartsManager.addCart();
+            return res.status(HTTPStatus.CREATED).json({ status: cart.status, payload: cart.data.cartId });
         } catch (error) {
-            console.log(`Error al agregar el cart: ${error}`);
-            throw error;
+            res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: error.message });
         }
     }
+
     async getCartById(req, res) {
         try {
-            const CartId = req.params.cid
+            const CartId = req.params.cid;
+            const cart = await cartsManager.getCartById(CartId);
+            return res.status(HTTPStatus.OK).json({
+                status: "success",
+                payload: cart
+            });
+        } catch (error) {
+            if (error.message) {
+                res.status(HTTPStatus.NOT_FOUND).render("error", { error: error.message });
+            } else {
+                res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+            }
+        }
+    }
 
-            const cart = await cartsManager.getCartById(CartId)
-            return res.json({
-                status: 'success',
-                payload: { cart }
-            })
-        } catch (error) {
-            res.render("error", {error})
-        }
-    }
-    async addProductToCart(req, res) { //revisar
+    async addProductToCart(req, res) {
         try {
-            const productId = req.params.pid
-            const cartId = req.params.cid
-            const user = req.session?.user
-            const cartWithProduct = await cartsManager.addProductToCart(cartId, productId, user)
-            return res.json({
-                status: 'success',
-                payload: { cart: cartWithProduct }
-            })
+            const productId = req.params.pid;
+            const cartId = req.params.cid;
+            const user = req.session?.user;
+            const cartWithProduct = await cartsManager.addProductToCart(cartId, productId, user);
+            return res.status(cartWithProduct.status === 'success' ? HTTPStatus.OK : HTTPStatus.BAD_REQUEST).json({
+                status: cartWithProduct.status,
+                payload: { cart: cartWithProduct.message }
+            });
         } catch (error) {
-            res.render("error", {error})
+            if (error.message) {
+                res.status(HTTPStatus.NOT_FOUND).render("error", { error: error.message });
+            } else {
+                res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+            }
         }
     }
+
     async deleteProductFromCart(req, res) {
         try {
-            const productId = req.params.pid
-            const cartId = req.params.cid
-            const borrado = await cartsManager.deleteProductFromCart(cartId, productId)
-            return res.json({
-                status: 'success',
-                payload: { borrado }
-            })
+            const productId = req.params.pid;
+            const cartId = req.params.cid;
+            const borrado = await cartsManager.deleteProductFromCart(cartId, productId);
+            return res.status(borrado.status === 'success' ? HTTPStatus.OK : HTTPStatus.CONFLICT).json({
+                status: borrado.status,
+                payload: borrado.message
+            });
         } catch (error) {
-            res.render("error", {error})
+            if (error.message) {
+                res.status(HTTPStatus.NOT_FOUND).render("error", { error: error.message });
+            } else {
+                res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+            }
         }
     }
+
     async updateProductsOfCart(req, res) {
         try {
             const cartId = req.params.cid;
             const newProducts = req.body;
-            await cartsManager.updateProductsOfCart(cartId, newProducts);
-            return res.json({
-                status: 'success',
-                payload: { message: "Carrito actualizado con éxito" }
-            })
+            const updated = await cartsManager.updateProductsOfCart(cartId, newProducts);
+            return res.status(updated.status === 'success' ? HTTPStatus.OK : HTTPStatus.BAD_REQUEST).json({
+                status: updated.status,
+                payload: updated.message
+            });
         } catch (error) {
-            res.render("error", {error})
-            res.status(500).json({ message: "Error interno del servidor" });
+            if (error.message) {
+                res.status(HTTPStatus.NOT_FOUND).render("error", { error: error.message });
+            } else {
+                res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+            }
         }
     }
+
     async updateProductQuantityInCart(req, res) {
         try {
             const cartId = req.params.cid;
             const productId = req.params.pid;
             const quantity = req.body.quantity;
-            await cartsManager.updateProductQuantityInCart(cartId, productId, quantity);
-            return res.json({
-                status: 'success',
-                payload: { message: "Cantidad de producto actualizada con éxito" }
-            })
+            const update = await cartsManager.updateProductQuantityInCart(cartId, productId, quantity);
+            return res.status(update.status === 'success' ? HTTPStatus.OK : HTTPStatus.BAD_REQUEST).json({
+                status: update.status,
+                payload: update.message
+            });
         } catch (error) {
-            console.error("Error al actualizar la cantidad de producto:", error);
-            res.status(500).json({ message: "Error interno del servidor" });
+            if (error.message) {
+                res.status(HTTPStatus.NOT_FOUND).render("error", { error: error.message });
+            } else {
+                res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+            }
         }
     }
+
     async deleteAllProductsFromCart(req, res) {
         try {
             const cartId = req.params.cid;
-            await cartsManager.deleteAllProductsFromCart(cartId)
-            return res.json({
-                status: 'success',
-                payload: {message: "Productos eliminados del carrito con éxito"}
-            })
+            const update = await cartsManager.deleteAllProductsFromCart(cartId);
+            return res.status(update.status === 'success' ? HTTPStatus.OK : HTTPStatus.CONFLICT).json({
+                status: update.status,
+                payload: update.message
+            });
         } catch (error) {
-            console.error("Error al eliminar los productos del carrito:", error);
-            res.status(500).json({ message: "Error interno del servidor" });
+            if (error.message) {
+                res.status(HTTPStatus.NOT_FOUND).render("error", { error: error.message });
+            } else {
+                res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+            }
         }
     }
+
     async getAllCarts(req, res) {
         try {
-            const carts = await cartsManager.getAllCarts()
-            return res.json({
+            const carts = await cartsManager.getAllCarts();
+            return res.status(HTTPStatus.OK).json({
                 status: 'success',
-                payload: {carts: carts}
-            })
+                payload: { carts: carts.data }
+            });
         } catch (error) {
-            res.render("error", {error})
+            if (error.message) {
+                res.status(HTTPStatus.NOT_FOUND).render("error", { error: error.message });
+            } else {
+                res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+            }
         }
     }
 }

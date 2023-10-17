@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon -e yaml,js ./src/app.js --mode DEVELOPMENT",
+    "qa": "node  ./src/app.js --mode QA",
     "start": "node  ./src/app.js --mode PRODUCTION",
     "test": "mocha ./test/testeos.test.js"
   },
@@ -26,12 +27,15 @@
     "handlebars": "^4.7.7",
     "http": "^0.0.1-security",
     "http-server": "^14.1.1",
+    "http-status-codes": "^2.3.0",
     "joi": "^17.9.2",
     "logger": "^0.0.1",
     "mongoose": "^7.2.2",
     "mongoose-paginate": "^5.0.3",
     "mongoose-paginate-v2": "^1.7.31",
     "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.2",
+    "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.4",
     "passport": "^0.6.0",
     "passport-github2": "^0.1.12",

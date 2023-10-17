@@ -8,10 +8,14 @@ Edad:
 <br />
 Ultima Conexión: {{user.last_connection}}
 <br />
-Credenciales: {{user.documents}}
+{{#each user.documents}}
+  <br />
+  {{this.name }}:  {{this.reference}}
+  <br />
+{{/each}}
 <br />
 <section>
- <form class="form-custom" action="/api/users/{{id}}/documents" method="post" enctype="multipart/form-data">
+ <form class="form-custom" action="/api/users/{{user._id}}/documents" method="post" enctype="multipart/form-data">
                 <label for="identificacion">Identificación:</label>
                 <input type="file" name="identificacion" id="identificacion"><br>
 

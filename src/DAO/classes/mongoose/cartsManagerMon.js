@@ -1,142 +1,72 @@
+//cartmanagerDao
+import { CartModel } from '../../models/cart.model.js';
+import CustomError from '../../../services/errors/custom-error.service.js';
+import EErros from '../../../services/errors/enum-errors.service.js';
+import { returnMessage } from "./../../../utils.js"
+import { fileURLToPath } from 'url';
 
-import { Cart } from '../../models/cart.model.js';
-import ProductManagerMon from './productManagerMon.js';
-import { Types } from 'mongoose';
+const __dirname = fileURLToPath(import.meta.url)
 
-
-const  productManager = new ProductManagerMon()
-
-
-export default class CartsManager {
-  async addCart() {
+export default class CartsManagerMonDao {
+  async createCart() { //revisar
     try {
-      const cart = new Cart();
-      cart.cartId = String(Math.round(Math.random() * 100000));
-      cart.products = [];
-      await cart.save();
-      return cart.cartId;
+      const randomNumber = String(Math.round(Math.random() * 100000));
+      const cart = await CartModel.create({
+        cartId:randomNumber,
+        products:[],
+      });
+      return returnMessage("success", "cart created successfully", cart, __dirname,"createCart")
     } catch (error) {
-      console.log(`Error al agregar el cart: ${error}`);
-      throw error;
+      const errorMessage = CustomError.createError({
+        name: "CartNotFoundError",
+        message: " no cart was created",
+        cause: `we werent able to create a cart (check model)`,
+        code: EErros.DATA_BASE_ERROR,
+      })
+      throw returnMessage("failure",errorMessage.message, errorMessage, __dirname, "createCart")
     }
   }
 
-  async getCartById(cartId) {
+  async getCartByIdAndPopulate(cartId) { //revisar
     try {
-      const cart = await Cart.findOne({ cartId }).populate('products.idProduct');
-      if (cart) {
-        return cart;
-      } else {
-        return 'Error: Cart no encontrado';
-      }
+      const cart = await CartModel.findOne({ cartId }).populate('products.idProduct');
+      return returnMessage("success","cart successfuly found and populated", cart, __dirname, "getCartByIdAndPopulate")
     } catch (error) {
-      console.error(`Error al obtener el cart por ID: ${error}`);
-      throw error;
+     const errorMessage = CustomError.createError({
+        name: "CartNotFoundError",
+        message: " no cart was found",
+        cause: `we werent able to found any cart, cartsdb may be empty`,
+        code: EErros.DATA_BASE_ERROR,
+      })
+      throw returnMessage("failure",errorMessage.message, errorMessage, __dirname, "getCartByIdAndPopulate")
     }
   }
-
-  async addProductToCart(cartId, productId) { //revisar
+  async getCartById(cartId) { //revisar
     try {
-      const cart = await Cart.findOne({ cartId });
-      if (!cart) {
-        return 'Error: Cart no encontrado';
-      }
-      const product = await productManager.getProductById(productId)
-
-      const existingProduct = cart.products.find((p) => new Types.ObjectId(p.idProduct).equals(new Types.ObjectId(productId)));
-      if (existingProduct) {
-        if (product.stock > existingProduct.quantity) {
-          existingProduct.quantity++;
-        } else {
-          console.log('No se puede agregar el producto al carrito, el stock es cero.');
-        }
-      } else {
-        cart.products.push({ idProduct: productId, quantity: 1 });
-      }
-
-      await cart.save();
-      return 'Producto agregado al carrito con éxito.';
+      const cart = await CartModel.findOne({ cartId });
+      return returnMessage("success","cart successfully found", cart, __dirname, "getCartById") 
     } catch (error) {
-      console.error(`Error al agregar el producto al carrito: ${error}`);
-      throw error;
+      const errorMessage = CustomError.createError({
+        name: "CartNotFoundError",
+        message: " no cart was found",
+        cause: `we werent able to found any cart, cartsdb may be empty`,
+        code: EErros.DATA_BASE_ERROR,
+      })
+      throw returnMessage("failure",errorMessage.message, errorMessage, __dirname, "getCartById")
     }
   }
 
-  async deleteProductFromCart(cartId, productId) {
-    try {
-      const cart = await Cart.findOne({ cartId });
-      if (!cart) {
-        return 'Error: Carrito no encontrado';
-      }
-
-      const productIndex = cart.products.findIndex((p) => p.idProduct.toString() === productId);
-      if (productIndex !== -1) {
-        cart.products.splice(productIndex, 1);
-        await cart.save();
-        return 'Producto eliminado del carrito con éxito.';
-      } else {
-        return 'Error: Producto no encontrado en el carrito.';
-      }
-    } catch (error) {
-      console.error(`Error al eliminar el producto del carrito: ${error}`);
-      throw error;
-    }
-  }
-
-  async updateProductsOfCart(cartId, newProducts) {
-    const cart = await Cart.findOne({ cartId });
-    if (!cart) {
-      throw new Error("Carrito no encontrado");
-    }
-
-    cart.products = newProducts;
-    await cart.save();
-  }
-
-  async updateProductQuantityInCart(cartId, productId, quantity) {
-    try {
-      const cart = await Cart.findOne({ cartId });
-      if (!cart) {
-        throw new Error("Carrito no encontrado");
-      }
-
-      const product = cart.products.find((p) => p.idProduct.toString() === productId);
-      if (!product) {
-        throw new Error("Producto no encontrado en el carrito");
-      }
-
-      const quantityValue = Number(quantity);
-      if (isNaN(quantityValue)) {
-        throw new Error("La cantidad proporcionada no es un número válido");
-      }
-
-      product.quantity = product.quantity + quantityValue;
-
-      await cart.save();
-    } catch (error) {
-      console.error("Error al actualizar la cantidad de producto:", error);
-      throw error;
-    }
-  }
-
-  async deleteAllProductsFromCart(cartId) {
-    // Buscar el carrito por su ID
-    const cart = await Cart.findOne({ cartId });
-    if (!cart) {
-      throw new Error("Carrito no encontrado");
-    }
-    // Eliminar todos los productos del carrito
-    cart.products = [];
-    // Guardar los cambios en la base de datos
-    await cart.save();
-  }
-
-  async getAllCarts() {
-    try {
-      const carts = await Cart.find().populate('products');
-      return carts;
-    } catch (error) {
-      console.error(`Error al obtener todos los carts: ${error}`);
-    }
-  }
+  async getAllCartsAndPopulate(){ //revisar
+  try {
+    const carts = await CartModel.find().populate('products');
+    return returnMessage("success","carts successfully found and populated", carts, __dirname, "getAllCartsAndPopulate") 
+  } catch (error) {
+    const errorMessage = CustomError.createError({
+          name: "CartsNotFoundError",
+          message: " no carts was found",
+          cause: `we werent able to found any cart, cartsdb may be empty`,
+          code: EErros.DATA_BASE_ERROR,
+        })
+        throw returnMessage("failure", errorMessage.message, errorMessage,__dirname, "getAllCartsAndPopulate")
+  }}
 }

@@ -1,43 +1,77 @@
 //users controller
 import UserManagerMon from "../services/userManagerMon.service.js";
+import HTTPStatus from "http-status-codes"
 const userManagerMon = new UserManagerMon()
 export class UsersController {
+
+  async deleteOldUsers(req, res) {
+    try {
+      
+      const limit = 10
+      let query = {}
+      const { page } = req.query;
+      const options = {
+        limit: parseInt(limit),
+        page: parseInt(page) || 1,
+      };
+      const users = await userManagerMon.getAllUsers(options, limit, query);
+      await userManagerMon.deleteOldUsers(users.data.users)
+      res.status(HTTPStatus.NO_CONTENT)
+    } catch (error) {
+      if (error.message) {
+        res.status(HTTPStatus.NOT_FOUND).render("error", { error: error.message });
+      } else {
+        res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+      }
+    }
+  }
   async getAllUsers(req, res) {
     try {
       const limit = parseInt(req.query.limit);
       let query = {};
       const { page } = req.query;
       const options = {
-        limit: parseInt(limit) || 2,
+        limit: parseInt(limit) || 10,
         page: parseInt(page) || 1,
       };
       const users = await userManagerMon.getAllUsers(options, limit, query);
-      res.render("usersPanel", { users });
+      res.status(HTTPStatus.OK).render("usersPanel", { users: users.data });
     } catch (error) {
-      res.render("error", { error });
+      if (error.message) {
+        res.status(HTTPStatus.NOT_FOUND).render("error", { error: error.message });
+      } else {
+        res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+      }
     }
   }
   async volverPremium(req, res) {
     try {
       const { uid } = req.params;
       const upgradedUser = await userManagerMon.upgradeUserToPremium(uid);
-      res.status(200).json({ message: 'User upgraded to premium', user: upgradedUser });
+      res.status(HTTPStatus.OK).end();
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      if (error.message) {
+        res.status(HTTPStatus.NOT_FOUND).render("error", { error: error.message });
+      } else {
+        res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+      }
     }
   }
   async uploadDocuments(req, res) {
     try {
-      const identificacionFile = req.files?.identificacion?.[0]
-    const comprobanteDomicilioFile = req.files?.comprobanteDomicilio?.[0]
-    const comprobanteEstadoCuentaFile = req.files?.comprobanteEstadoCuenta?.[0]
-    const userName = req.session.user.email
-    const response = await userManagerMon.saveDocuments(identificacionFile, comprobanteDomicilioFile, comprobanteEstadoCuentaFile, userName)
-    return res.json(response.message)
+      const identificacionFile = req.files?.identificacion?.[0];
+      const comprobanteDomicilioFile = req.files?.comprobanteDomicilio?.[0];
+      const comprobanteEstadoCuentaFile = req.files?.comprobanteEstadoCuenta?.[0];
+      const userName = req.session.user.email;
+      const updatedUser = await userManagerMon.saveDocuments(identificacionFile, comprobanteDomicilioFile, comprobanteEstadoCuentaFile, userName);
+      req.session.user.documents = updatedUser.data.documents
+      res.status(HTTPStatus.SEE_OTHER).redirect("/api/session/current")
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Error interno del servidor.' });
+      if (error.message) {
+        res.status(HTTPStatus.NOT_FOUND).render("error", { error: error.message });
+      } else {
+        res.status(HTTPStatus.INTERNAL_SERVER_ERROR).render("error", { error: "Se produjo un error desconocido" });
+      }
     }
   }
 }

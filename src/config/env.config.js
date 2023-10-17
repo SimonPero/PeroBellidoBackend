@@ -6,7 +6,7 @@ program.option('--mode <mode>', 'Modo de trabajo', 'DEVELOPMENT');
 program.parse();
 
 dotenv.config({
-  path: program.opts().mode === 'DEVELOPMENT' ? './.env' : './.env.production',
+  path: program.opts().mode === 'DEVELOPMENT' ? '.env' : program.opts().mode === 'QA' ? '.env.qa' : '.env.production',
 });
 
 export default {

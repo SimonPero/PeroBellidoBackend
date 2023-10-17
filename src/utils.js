@@ -7,8 +7,6 @@ import envConfig from "./config/env.config.js";
 import { faker } from "@faker-js/faker";
 import winston from "winston";
 
-
-
 // Multer
 const documentStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -51,6 +49,7 @@ export const __dirname = path.dirname(__filename);
 export async function connectMongo() {
   try {
     logger.debug("Connecting to the MongoDB...");
+    console.log(envConfig.mongoUrl)
     await connect(envConfig.mongoUrl);
     logger.info("Connected to the MongoDB!");
   } catch (e) {
@@ -121,7 +120,6 @@ const developmentLogger = winston.createLogger({
 const productionLogger = winston.createLogger({
   transports: [
     new winston.transports.Console({ level: "info", format: consoleFormat }),
-    new winston.transports.File({ filename: "errors.log", level: "error" }),
   ],
   format: customFormat,
 });
@@ -142,3 +140,41 @@ export const addLogger = (req, res, next) => {
   req.logger = logger;
   next();
 };
+
+//FixedResponseMessageForReturn
+
+export function returnMessage(status, message, data, filename, functionName) {
+  const timestamp = new Date().toISOString();
+
+  // Validar el estado
+  const validStatus = ['success', 'warning', 'failure'];
+  if (!validStatus.includes(status)) {
+    status = 'unknown';
+  }
+
+  const messageObject = { timestamp, status, message, data, filename, functionName};
+
+  // Loggea el mensaje con el nivel adecuado
+  switch (status) {
+    case 'success':
+      logger.info(messageObject.status + " Time: " + messageObject.timestamp + " Message: " + messageObject.message);
+      logger.info("FilePathUrl: " + filename + " FunctionName: " + functionName)
+      break;
+    case 'warning':
+
+      logger.warn(messageObject);
+      break;
+    case 'failure':
+      
+      logger.error("CustomError - " + data.name || "error" + ": " + message + "  Time: " + messageObject.timestamp);
+      logger.error("ErrorMessage: " + message + " Cause: " + data.cause);
+      logger.error("FilePathUrl: " + filename + " FunctionName: " + functionName + " Code: " + data.code);
+
+      break;
+    default:
+      logger.error('Unknown status message:', messageObject);
+      break;
+  }
+
+  return messageObject
+}

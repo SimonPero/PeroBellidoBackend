@@ -1,2 +1,9 @@
 <h1>Algo salio mal..</h1>
 {{error}}
+
+{{#if divisor}}
+  <a href="/api/session/login">Volver al Login</a>
+{{/if}}
+{{#unless divisor}}
+  <a href="/products">Volver a Home</a>
+{{/unless}}

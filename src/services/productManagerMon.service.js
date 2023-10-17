@@ -1,10 +1,18 @@
-import { Product } from '../DAO/models/product.model.js';
+import ProductManagerMonDao from '../DAO/classes/mongoose/productManagerMon.js';
 import { MongoClient } from 'mongodb';
 import envConfig from '../config/env.config.js';
 import CustomError from './errors/custom-error.service.js';
 import EErros from './errors/enum-errors.service.js';
 import UserManagerMon from './userManagerMon.service.js';
-const userManagerMon = new UserManagerMon()
+import { returnMessage } from '../utils.js';
+import { fileURLToPath } from 'url';
+import nodemailer from 'nodemailer';
+
+const __dirname = fileURLToPath(import.meta.url)
+
+const productManagerMonDao = new ProductManagerMonDao();
+const userManagerMon = new UserManagerMon();
+
 export default class ProductManagerMon {
 
   async getProducts(query, options, sort) {
@@ -14,9 +22,8 @@ export default class ProductManagerMon {
       } else if (sort === "desc") {
         options.sort = { price: -1 };
       }
-
-      const result = await Product.paginate(query, options);
-      const { docs, ...rest } = result;
+      const result = await productManagerMonDao.productsPaginate(query, options);
+      const { docs, ...rest } = result.data;
 
       const products = docs.map((doc) => doc.toObject({ getters: true }));
 
@@ -33,7 +40,7 @@ export default class ProductManagerMon {
           ? buildPageLink(query, options, currentPage + 1, sort)
           : null;
 
-      return {
+      return returnMessage('success', 'Productos obtenidos con éxito', {
         products,
         currentPage,
         pagination: {
@@ -46,10 +53,10 @@ export default class ProductManagerMon {
           prevLink,
           nextLink,
         },
-      };
+      }, __dirname, 'getProducts');
     } catch (error) {
-      console.error("Error al obtener los productos:", error);
-      return null;
+      
+      throw returnMessage('failure', "Error al obtener productos", error.data, __dirname, 'getProducts');
     }
   }
 
@@ -57,55 +64,9 @@ export default class ProductManagerMon {
     try {
       let cart = 0;
       if (user && !user.isAdmin) {
-        cart = user.cart
-        return {
-          products: productsData.products,
-          currentPage: productsData.currentPage,
-          pagination: {
-            totalPages: productsData.pagination.totalPages,
-            prevPage: productsData.pagination.prevPage || null,
-            nextPage: productsData.pagination.nextPage || null,
-            page: productsData.pagination.page,
-            hasPrevPage: productsData.pagination.hasPrevPage,
-            hasNextPage: productsData.pagination.hasNextPage,
-            prevLink: productsData.pagination.prevLink,
-            nextLink: productsData.pagination.nextLink,
-          },
-          category,
-          limit,
-          sort,
-          cart,
-          user: user
-        };
-      } else {
-        return {
-          products: productsData.products,
-          currentPage: productsData.currentPage,
-          pagination: {
-            totalPages: productsData.pagination.totalPages,
-            prevPage: productsData.pagination.prevPage || null,
-            nextPage: productsData.pagination.nextPage || null,
-            page: productsData.pagination.page,
-            hasPrevPage: productsData.pagination.hasPrevPage,
-            hasNextPage: productsData.pagination.hasNextPage,
-            prevLink: productsData.pagination.prevLink,
-            nextLink: productsData.pagination.nextLink,
-          },
-          category,
-          limit,
-          sort,
-          cart,
-          user: user
-        };
+        cart = user.cart;
       }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async revisionJson(productsData, category, limit, sort) {
-    try {
-      return {
+      return returnMessage('success', 'Revisión de productos exitosa', {
         products: productsData.products,
         currentPage: productsData.currentPage,
         pagination: {
@@ -121,73 +82,107 @@ export default class ProductManagerMon {
         category,
         limit,
         sort,
-      };
+        cart,
+        user,
+      }, __dirname, 'revision');
     } catch (error) {
-      console.log(error)
+      const errorMessage = CustomError.createError({
+        name: "RevisionError",
+        message: "Error en la revisión de productos",
+        cause: "extremely rare error, cause unknown",
+        code: EErros.DATA_BASE_ERROR,
+      });
+      throw returnMessage('failure', errorMessage.message, errorMessage, __dirname, 'revision');
     }
   }
 
-  async getRealTimeProducts(owner) {
+  async revisionJson(productsData, category, limit, sort) {
     try {
-      const user = await userManagerMon.getUserByUserName(owner)
+      return returnMessage('success', 'Revisión de productos en formato JSON exitosa', {
+        products: productsData.products,
+        currentPage: productsData.currentPage,
+        pagination: {
+          totalPages: productsData.pagination.totalPages,
+          prevPage: productsData.pagination.prevPage || null,
+          nextPage: productsData.pagination.nextPage || null,
+          page: productsData.pagination.page,
+          hasPrevPage: productsData.pagination.hasPrevPage,
+          hasNextPage: productsData.pagination.hasNextPage,
+          prevLink: productsData.pagination.prevLink,
+          nextLink: productsData.pagination.nextLink,
+        },
+        category,
+        limit,
+        sort,
+      }, __dirname, 'revisionJson');
+    } catch (error) {
+      const errorMessage = CustomError.createError({
+        name: "RevisionJsonError",
+        message: "Error en la revisión de productos en formato JSON",
+        cause: "extremely rare error, cause unknown",
+        code: EErros.DATA_BASE_ERROR,
+      });
+      throw returnMessage('failure', errorMessage.message, errorMessage, __dirname, 'revisionJson');
+    }
+  }
+
+  async getRealTimeProducts(user) {
+    try {
+      if ( user.role !== "admin") {
+        
+        const foundUser = await userManagerMon.getUserByUserName(user.email);
+      }
       const client = await MongoClient.connect(envConfig.mongoUrl);
       const db = client.db();
       const collection = db.collection("products");
       const items = await collection.find({}).toArray();
       client.close();
-      if (user.role ==="premium") {
-        const products = items.filter((product) => product.owner === owner);
-        return products;
+
+      if (user.role === "premium") {
+        const products = items.filter((product) => product.owner === user.email);
+        return returnMessage('success', 'Productos en tiempo real obtenidos con éxito', products, __dirname, 'getRealTimeProducts');
       } else {
-        return items;
+        return returnMessage('success', 'Productos en tiempo real obtenidos con éxito', items, __dirname, 'getRealTimeProducts');
       }
     } catch (error) {
-      console.error('Error al obtener los productos:', error);
-      throw error;
+      throw returnMessage('failure', 'Error al obtener los productos en tiempo real', error.data , __dirname, 'getRealTimeProducts');
     }
   }
+
   async addProduct(title, description, price, code, stock, category, fileData, owner) {
     try {
-        try {
-          if (title && description && price && code && stock && category && fileData && owner) {}
-        } catch (error) {
-          return "Error al agregar el producto: " + error.message;
-        }
-        const product = await Product.create({
-            title,
-            description,
-            price,
-            code,
-            stock,
-            category,
-            status: true,
-            picture: `images/${fileData}`,
-            owner: owner,
+      const validacion = await productManagerMonDao.findProductByCode(code);
+      if (!title || !description || !price || !code || !stock || !category || !owner) {
+        const errorMessage = CustomError.createError({
+          name: "NotValidCredentials",
+          message: "the product hasnt been created",
+          cause:"invalid credentials",
+          code: EErros.INVALID_CREDENTIALS_ERROR,
         });
-        return product;
+       throw returnMessage("failure", errorMessage.message, errorMessage, __dirname, "addProduct")
+      } else if (validacion) {
+        const errorMessage = CustomError.createError({
+          name: "ProductCodeExistsError",
+          message: "the product hasnt been created",
+          cause:"the code is already in use",
+          code: EErros.PRODUCT_CODE_ALREADY_EXISTS_ERROR,
+        });
+        throw returnMessage("failure", errorMessage.message, errorMessage, __dirname, "addProduct")
+      }
+
+      const product = await productManagerMonDao.createProduct(title, description, price, code, stock, category, fileData, owner);
+      return returnMessage('success', 'Producto agregado con éxito', product.data, __dirname, 'addProduct');
     } catch (error) {
-        return "Error al agregar el producto: " + error.message;
+      throw returnMessage('failure', "Error al agregar el producto", error.data, __dirname, 'addProduct');
     }
-}
+  }
 
   async getProductById(id) {
     try {
-      const product = await Product.findById(id).lean();
-      if (product) {
-        return product
-      } else {
-        if (!product) {
-          throw CustomError.createError({
-            name: "ProductNotFoundError",
-            message: " no product was found",
-            cause: `no product with the id: ${id} was found`,
-            code: EErros.PRODUCT_NOT_FOUND_ERROR,
-          })
-        }
-      }
+      const product = await productManagerMonDao.findProductById(id);
+      return returnMessage('success', 'Producto obtenido por ID con éxito', product.data, __dirname, 'getProductById');
     } catch (error) {
-      console.error("Error al obtener el producto:", error);
-      return null;
+      throw returnMessage('failure', "Error al obtener el producto por ID", error.data, __dirname, 'getProductById');
     }
   }
 
@@ -203,42 +198,62 @@ export default class ProductManagerMon {
       if (toUpdate.stock < 0) {
         toUpdate.stock = 0;
       }
-
-      const updatedProduct = await Product.findByIdAndUpdate(id, toUpdate, { new: true }).lean();
-      return updatedProduct;
+      const updatedProduct = await productManagerMonDao.updateProduct(id, toUpdate);
+      return returnMessage('success', 'Producto actualizado con éxito', updatedProduct.data, __dirname, 'updateProduct');
     } catch (error) {
-      console.error("Error al actualizar el producto:", error);
-      return null;
+      const errorMessage = CustomError.createError({
+        name: "UpdateProductError",
+        message: "Error al actualizar el producto",
+        cause: error.message,
+        code: EErros.DATA_BASE_ERROR,
+      });
+      throw returnMessage('failure', errorMessage.message, null, __dirname, 'updateProduct');
     }
   }
-  async deleteProduct(id, email) {
+
+  async deleteProduct(id, email, user) {
     try {
-      const product = await Product.findById(id)
-      if(!product.owner ===email && !user.isAdmin){
-        throw CustomError.createError({
-          name: "CannotDeleteOtherPeopleProducts",
-          message: "you tried to deleted the product of other person",
-          cause: `the product of the owner:${product.owner} was tried to be deleted by ${email}`,
-          code: EErros.PRODUCT_NOT_FOUND_ERROR,
+      const product = await productManagerMonDao.findProductById(id);
+      
+      if (!product.data.owner === email && !user.isAdmin) {
+        const errorMessage = CustomError.createError({
+          name: "UnauthorizedProductDeletionError",
+          message: "No tienes permiso para eliminar este producto",
+          code: EErros.UNAUTHORIZED_PRODUCT_DELETION_ERROR,
+        });
+        return returnMessage('warning', errorMessage.message, errorMessage, __dirname, 'deleteProduct');
+      }
+      let productOwner =""
+      if(product.data.owner !== "admin"){
+        const found = await userManagerMon.getUserByUserName(product.data.owner)
+        productOwner = found
+      }
+
+      const deletedProduct = await productManagerMonDao.deleteProduct(id);
+      if (user.isAdmin && productOwner.role === "premium") {
+        const transport = nodemailer.createTransport({
+          service: "gmail",
+          port: 587,
+          auth: {
+            user: envConfig.googleName,
+            pass: envConfig.googlePass,
+          },
         })
+        const result = await transport.sendMail({
+          from: envConfig.googleName,
+          to: productOwner.email,
+          subject: "tu producto ha sido eliminado",
+          html: `
+              <div>
+                <h1>el admin ha borrado  tu producto dentro del ecommerce de SimonPero</h1>
+              </div>
+              `
+        });
       }
-      const deletedProduct = await Product.findByIdAndDelete(id).lean();
-      if (deletedProduct) {
-        return "eliminado correctamente"
-      } else {
-        if (!deletedProduct) {
-          throw CustomError.createError({
-            name: "ProductsNotFoundError",
-            message: " no product was found",
-            cause: `no product with the id: ${id} was found`,
-            code: EErros.PRODUCT_NOT_FOUND_ERROR,
-          })
-        }
-      }
-      return deletedProduct ? "Eliminado correctamente" : "Esta ID no existe";
+      return returnMessage('success', 'Producto eliminado con éxito', deletedProduct.data, __dirname, 'deleteProduct');
+      
     } catch (error) {
-      console.error("Error al eliminar el producto:", error);
-      return null;
+      throw returnMessage('failure', "Error al eliminar el producto", error.data, __dirname, 'deleteProduct');
     }
   }
 }

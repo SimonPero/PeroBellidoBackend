@@ -1,150 +1,99 @@
-import { Product } from "../../models/product.model.js";
-import { MongoClient } from 'mongodb';
-import envConfig from './../../../config/env.config.js'
+import { ProductModel } from "../../models/product.model.js";
+import EErros from "../../../services/errors/enum-errors.service.js";
+import CustomError from "../../../services/errors/custom-error.service.js";
+import { returnMessage } from "../../../utils.js";
+import { fileURLToPath } from 'url';
+import envConfig from "../../../config/env.config.js";
 
-export default class ProductManagerMon {
-
-  async getProducts(query, options, sort) {
+const __dirname = fileURLToPath(import.meta.url)
+export default class ProductManagerMonDao {
+  async productsPaginate(query, options) { //
     try {
-      if (sort === "asc") {
-        options.sort = { price: 1 };
-      } else if (sort === "desc") {
-        options.sort = { price: -1 };
-      }
-
-      const result = await Product.paginate(query, options);
-      const { docs, ...rest } = result;
-
-      const products = docs.map((doc) => doc.toObject({ getters: true }));
-
-      const currentPage = parseInt(options.page) || 1;
-      const totalPages = rest.totalPages;
-
-      const prevLink =
-        rest.hasPrevPage && currentPage > 1
-          ? buildPageLink(query, options, currentPage - 1, sort)
-          : null;
-
-      const nextLink =
-        rest.hasNextPage && currentPage < totalPages
-          ? buildPageLink(query, options, currentPage + 1, sort)
-          : null;
-
-      return {
-        products,
-        currentPage,
-        pagination: {
-          totalPages,
-          prevPage: rest.prevPage || null,
-          nextPage: rest.nextPage || null,
-          page: rest.page,
-          hasPrevPage: rest.hasPrevPage,
-          hasNextPage: rest.hasNextPage,
-          prevLink,
-          nextLink,
-        },
-      };
+      const result = await ProductModel.paginate(query, options);
+      return returnMessage("success", "products correctly paginated", result, __dirname, "productsPaginate")
     } catch (error) {
-      console.error("Error al obtener los productos:", error);
-      return null;
+      const errorMessage = CustomError.createError({
+        name: "ProductsNotPaginatedError",
+        message: " were not able to paginate products",
+        cause: `we werent able to Paginate, productsdb may be empty`,
+        code: EErros.DATA_BASE_ERROR,
+      })
+      throw returnMessage("failure", errorMessage.message, errorMessage, __dirname, "productsPaginate")
     }
   }
-
-  async revision(productsData, user, category, limit, sort) {
+  async findProductByCode(code) {
     try {
-      let cart = 0;
-      if (user && !user.isAdmin) {
-        cart = user.cart
-        return {
-          products: productsData.products,
-          currentPage: productsData.currentPage,
-          pagination: {
-            totalPages: productsData.pagination.totalPages,
-            prevPage: productsData.pagination.prevPage || null,
-            nextPage: productsData.pagination.nextPage || null,
-            page: productsData.pagination.page,
-            hasPrevPage: productsData.pagination.hasPrevPage,
-            hasNextPage: productsData.pagination.hasNextPage,
-            prevLink: productsData.pagination.prevLink,
-            nextLink: productsData.pagination.nextLink,
-          },
+      const validacion = await ProductModel.findOne({ code: code })
+      return validacion
+    } catch (error) {
+      const errorMessage = CustomError.createError({
+        name: "ProductNotFoundError",
+        message: " no product was found",
+        cause: `we werent able to found any product, productsdb may be empty`,
+        code: EErros.DATA_BASE_ERROR,
+      })
+      throw returnMessage("failure", errorMessage.message, errorMessage, __dirname, "findProductByCode")
+    }
+  }
+  async findProductById(id) {//
+    try {
+      const product = await ProductModel.findById(id).lean();
+      return returnMessage('success', "product successfully found", product, __dirname, 'findProductById');
+    } catch (error) {
+      const errorMessage = CustomError.createError({
+        name: "ProductNotFoundError",
+        message: " no product was found",
+        cause: `we werent able to found any product, productsdb may be empty`,
+        code: EErros.DATA_BASE_ERROR,
+      })
+      throw returnMessage('failure', errorMessage.message, errorMessage, __dirname, 'findProductById');
+    }
+  }
+  async deleteProduct(id) {
+    try {
+      const deletedProduct = await ProductModel.findByIdAndDelete(id).lean();
+      return returnMessage('success', 'Producto eliimnado con éxito', deletedProduct, __dirname, 'deleteProduct');
+    } catch (error) {
+      const errorMessage = CustomError.createError({
+        name: "ProductNotDeletedError",
+        message: " no product was deleted",
+        cause: `we werent able to delete any product, productsdb may be empty`,
+        code: EErros.DATA_BASE_ERROR,
+      })
+      throw returnMessage('failure', errorMessage.message, errorMessage, __dirname, 'deleteProduct');
+    }
+  }
+  async updateProduct(id, toUpdate) {//revisar
+    try {
+      const updatedProduct = await ProductModel.findByIdAndUpdate(id, toUpdate, { new: true }).lean();
+      return returnMessage('success', "product has successfully ben updated", updatedProduct, __dirname, 'updateProduct');
+    } catch (error) {
+      const errorMessage = CustomError.createError({
+        name: "ProductNotUpdatedError",
+        message: " no product was updated",
+        cause: `we werent able to update any product, productsdb may be empty`,
+        code: EErros.DATA_BASE_ERROR,
+      })
+      throw returnMessage('failure', errorMessage.message, errorMessage, __dirname, 'updateProduct');
+    }
+  }
+  async createProduct(title, description, price, code, stock, category, fileData, owner) {
+    try {
+      if (owner === envConfig.adminName) {
+        const product = await ProductModel.create({
+          title,
+          description,
+          price,
+          code,
+          stock,
           category,
-          limit,
-          sort,
-          cart,
-          user: user
-        };
-      } else {
-        return {
-          products: productsData.products,
-          currentPage: productsData.currentPage,
-          pagination: {
-            totalPages: productsData.pagination.totalPages,
-            prevPage: productsData.pagination.prevPage || null,
-            nextPage: productsData.pagination.nextPage || null,
-            page: productsData.pagination.page,
-            hasPrevPage: productsData.pagination.hasPrevPage,
-            hasNextPage: productsData.pagination.hasNextPage,
-            prevLink: productsData.pagination.prevLink,
-            nextLink: productsData.pagination.nextLink,
-          },
-          category,
-          limit,
-          sort,
-          cart,
-          user: user
-        };
+          status: true,
+          picture: `images/${fileData}`,
+          owner: "admin",
+        });
+        return returnMessage('success', "product successfully created", product, __dirname, 'createProduct');
       }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async revisionJson(productsData, category, limit, sort) {
-    try {
-      return {
-        products: productsData.products,
-        currentPage: productsData.currentPage,
-        pagination: {
-          totalPages: productsData.pagination.totalPages,
-          prevPage: productsData.pagination.prevPage || null,
-          nextPage: productsData.pagination.nextPage || null,
-          page: productsData.pagination.page,
-          hasPrevPage: productsData.pagination.hasPrevPage,
-          hasNextPage: productsData.pagination.hasNextPage,
-          prevLink: productsData.pagination.prevLink,
-          nextLink: productsData.pagination.nextLink,
-        },
-        category,
-        limit,
-        sort,
-      };
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async getRealTimeProducts() {
-    try {
-      const client = await MongoClient.connect(envConfig.mongoUrl);
-      const db = client.db();
-      const collection = db.collection("products");
-      const items = await collection.find({}).toArray();
-      client.close();
-      return items;
-    } catch (error) {
-      console.error('Error al obtener los productos:', error);
-      throw error;
-    }
-  }
-  async addProduct(title, description, price, code, stock, category, fileData, owner) {
-    try {
-      const existingProduct = await Product.findOne({ code });
-      if (existingProduct) {
-        return "El código del producto ya está en uso";
-      }
-
-      await Product.create({
+      const product = await ProductModel.create({
         title,
         description,
         price,
@@ -153,66 +102,17 @@ export default class ProductManagerMon {
         category,
         status: true,
         picture: `images/${fileData}`,
-        owner:owner,
+        owner: owner,
       });
-
-      return "Producto agregado con éxito";
+      return returnMessage('success', "product successfully created", product, __dirname, 'createProduct');
     } catch (error) {
-      console.error("Error al agregar el producto:", error);
-      return null;
+      const errorMessage = CustomError.createError({
+        name: "ProductNotCreatedError",
+        message: " no product was created",
+        cause: `we werent able to create any product`,
+        code: EErros.DATA_BASE_ERROR,
+      })
+      throw returnMessage('failure', errorMessage.message, errorMessage, __dirname, 'createProduct');
     }
   }
-
-  async getProductById(id) {
-    try {
-      const product = await Product.findById(id).lean();
-      return product || "Error: producto no encontrado";
-    } catch (error) {
-      console.error("Error al obtener el producto:", error);
-      return null;
-    }
-  }
-
-  async updateProduct(id, campo) {
-    try {
-      let toUpdate;
-      if (typeof campo === "string") {
-        toUpdate = JSON.parse(campo);
-      } else {
-        toUpdate = campo;
-      }
-
-      if (toUpdate.stock < 0) {
-        toUpdate.stock = 0;
-      }
-
-      await Product.findByIdAndUpdate(id, toUpdate, { new: true }).lean();
-      return "Producto cambiado correctamente";
-    } catch (error) {
-      console.error("Error al actualizar el producto:", error);
-      return null;
-    }
-  }
-  async deleteProduct(id) {
-    try {
-      const deletedProduct = await Product.findByIdAndDelete(id).lean();
-      return deletedProduct ? "Eliminado correctamente" : "Esta ID no existe";
-    } catch (error) {
-      console.error("Error al eliminar el producto:", error);
-      return null;
-    }
-  }
-}
-
-function buildPageLink(query, options, page, sort) {
-  const baseUrl = `/api/products`;
-  const queryParams = {
-    ...query,
-    ...options,
-    page,
-    sort,
-  };
-  const queryString = new URLSearchParams(queryParams).toString();
-  const newUrl = `http://localhost:8080${baseUrl}?${queryString}`;
-  return newUrl;
 }

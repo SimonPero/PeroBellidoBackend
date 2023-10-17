@@ -40,7 +40,7 @@ paths:
       security:
         - session: []
       parameters:
-        - name: cid
+        - name: 
           in: path
           required: true
           description: ID del carrito que se busca
