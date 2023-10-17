@@ -84,13 +84,6 @@ class SessionController {
         res.status(HTTPStatus.OK).render('perfil', { user: user });
     }
 
-    async viewAdmin(req, res) {
-        try {
-            res.status(HTTPStatus.OK).send('datos super secretos clasificados sobre los nuevos ingresos a Boca Juniors');
-        } catch (error) {
-            res.status(HTTPStatus.UNAUTHORIZED).render('error', { error: "error de autorización" });
-        }
-    }
 
     gitHubLogin(req, res) {
         req.session.user = req.user;

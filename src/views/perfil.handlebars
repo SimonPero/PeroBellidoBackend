@@ -29,7 +29,10 @@ Ultima Conexión: {{user.last_connection}}
             </form>
 </section>
 <br />
-<a href='/api/session/administracion'>Ver datos super secretos<a>
+<a href='/realtimeproducts'>Crear Productos<a>
+{{#if user.isAdmin}}
+  <a href="/api/users">Panel de Usuarios</a>
+{{/if}}
 <a href="/products">Volver a los Productos</a>
 <br />
 <a href='/api/session/logout'>Salir!</a>
