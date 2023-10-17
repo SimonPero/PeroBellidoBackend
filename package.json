@@ -4,6 +4,9 @@
   "description": "",
   "main": "app.js",
   "type": "module",
+  "engines":{
+    "node":"18.x"
+  },
   "scripts": {
     "dev": "nodemon -e yaml,js ./src/app.js --mode DEVELOPMENT",
     "qa": "node  ./src/app.js --mode QA",
