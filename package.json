@@ -5,7 +5,7 @@
   "main": "app.js",
   "type": "module",
   "engines":{
-    "node":"18.x"
+    "node":"18.X"
   },
   "scripts": {
     "dev": "nodemon -e yaml,js ./src/app.js --mode DEVELOPMENT",
