@@ -49,7 +49,6 @@ export const __dirname = path.dirname(__filename);
 export async function connectMongo() {
   try {
     logger.debug("Connecting to the MongoDB...");
-    console.log(envConfig.mongoUrl)
     await connect(envConfig.mongoUrl);
     logger.info("Connected to the MongoDB!");
   } catch (e) {
