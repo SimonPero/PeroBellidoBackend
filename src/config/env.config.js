@@ -16,5 +16,7 @@ export default {
   adminPassword: process.env.ADMIN_PASSWORD,
   googleName:process.env.GOOGLE_NAME,
   googlePass:process.env.GOOGLE_PASS,
-  httpPort:process.env.HTTP_PORT
+  httpPort:process.env.HTTP_PORT,
+  gitHubId:process.env.GIT_HUB_ID,
+  gitHubSecret:process.env.GIT_HUB_SECRET,
 };

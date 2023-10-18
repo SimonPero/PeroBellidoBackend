@@ -267,6 +267,6 @@ function buildPageLink(query, options, page, sort) {
     sort,
   };
   const queryString = new URLSearchParams(queryParams).toString();
-  const newUrl = `http://localhost:8080${baseUrl}?${queryString}`;
+  const newUrl = envConfig.httpPort+`${baseUrl}?${queryString}`;
   return newUrl;
 }
