@@ -25,7 +25,7 @@ export default class UserManagerMonDao {
   }
   async createUser(newUser) { //donee
     try {
-      
+      (newUser)
       const userCreated = await UserModel.create(newUser);
       return returnMessage('success', "usuario creado" , userCreated, __dirname, 'createUser')
     } catch (error) {

@@ -88,12 +88,12 @@ export function iniPassport() {
           profile.email = emailDetail.email;
 
           let user = await userManagerMon.getUserByUserName(profile.email)
-
           if (user.email) {
             return done(null, user);
           }
 
           if (user.data) {
+            const cart = await cartsManager.addCart()
             const newUser = {
               email: profile.email,
               firstName: profile._json.name || profile._json.login || 'noname',
@@ -102,7 +102,7 @@ export function iniPassport() {
               age: 13,
               password: "nopass",
               github: true,
-              cart: await cartsManager.addCart(),
+              cart: cart.cartId,
             };
             let userCreated = await userManagerMon.createUser(newUser)
             return done(null, userCreated);
@@ -139,16 +139,16 @@ export function iniPassport() {
             return done(null, false);
            }
            if (user === "create") {
+            const cart = await cartsManager.addCart()
             const newUser = {
               email,
               firstName,
               lastName,
               isAdmin: false,
               age,
-              cart: await cartsManager.addCart(),
+              cart: cart.cartId,
               password: createHash(password),
             };
-
             if (newUser.age < 13 || newUser.age > 100 || !newUser.age || !newUser.email || !newUser.firstName || !newUser.lastName || !newUser.password) {
               const errorMessage = CustomError.createError({
                 name: 'UserAgeValidationError',

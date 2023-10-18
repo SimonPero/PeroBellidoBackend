@@ -15,7 +15,8 @@ const productManager = new ProductManagerMon()
 export default class CartsManager {
   async addCart() {
     try {
-      const cart = cartsManagerMonDao.createCart()
+      const cart = await cartsManagerMonDao.createCart()
+      console.log(cart)
       return cart.data;
     } catch (error) {
       throw error;

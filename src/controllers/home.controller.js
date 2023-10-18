@@ -59,7 +59,6 @@ class HomeController {
             const id = req.params.pid;
             const cartId = req.session.user.cart;
             const product = await productManager.getProductById(id);
-            console.log(product)
             res.status(HTTPStatus.OK).render("product-details", { product: product.data, cart: cartId });
         } catch (error) {
             if (error.message) {

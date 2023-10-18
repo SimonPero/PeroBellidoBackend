@@ -5,6 +5,7 @@ export default class CurrentUserDTO {
         this.isAdmin = user.isAdmin;
         this._id = user._id;
         this.role = user.role;
+        this.cart = user.cart
         this.age = user.age ||"noAge";
         this.documents = user.documents;
         this.last_connection =user.last_connection;

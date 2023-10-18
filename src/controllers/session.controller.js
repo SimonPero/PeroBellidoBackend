@@ -44,6 +44,7 @@ class SessionController {
         if (req.user.role === 'usuario' || req.user.role === 'premium') {
             req.user.last_connection = Date();
             req.user.save();
+    
             req.session.user = new UserDTO(req.user);
         }
         returnMessage("success", "login completed", null, __dirname, "completeLogin");

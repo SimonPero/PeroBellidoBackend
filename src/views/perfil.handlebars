@@ -8,13 +8,13 @@ Edad:
 <br />
 Ultima Conexión: {{user.last_connection}}
 <br />
-{{#if user.role === "premium"}}
+
 {{#each user.documents}}
 <br />
 {{this.name}}: {{this.reference}}
 <br />
 {{/each}}
-{{/if}}
+
 
 <br />
 <section>
