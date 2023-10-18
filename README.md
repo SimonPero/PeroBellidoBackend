@@ -38,170 +38,360 @@ Este proyecto es un API básica que sigue las consignas de la tercera preEntrega
 
 ## Endpoints de la app
 
-##Rutas Principales
-- /recoverEmail
+### Rutas Principales
 
-Controlador de recuperación de correo electrónico.
-/api/users
+#### `/recoverEmail`
+- **Método**: POST
+- **Descripción**: Envia un mensaje de recuperación de contraseña al correo electrónico del usuario.
+- **Controlador**: `recoverEmailController.sendMessageToEmail`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `POST /recoverEmail` - Enviar un mensaje de recuperación de contraseña.
 
-Controlador de usuarios.
-/api/products
+#### `/recoverEmail/recoverPass`
+- **Método**: GET
+- **Descripción**: Renderiza la página de recuperación de contraseña.
+- **Controlador**: `recoverEmailController.renderRecoveryPass`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /recoverEmail/recoverPass` - Renderiza la página de recuperación de contraseña.
 
-Controlador de productos.
-/api/carts
+#### `/recoverEmail/recoverPass`
+- **Método**: POST
+- **Descripción**: Procesa el formulario de recuperación de contraseña.
+- **Controlador**: `recoverEmailController.passRecoveryPost`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `POST /recoverEmail/recoverPass` - Procesa el formulario de recuperación de contraseña.
 
-Controlador de carritos de compra.
-/products
+#### `/recoverEmail/recoverPass`
+- **Método**: GET
+- **Descripción**: Renderiza la página de recuperación de contraseña (otro endpoint con el mismo patrón).
+- **Controlador**: `recoverEmailController.renderRecoveryPass`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /recoverEmail/recoverPass` - Renderiza la página de recuperación de contraseña.
 
-Controlador de página de productos.
-/realtimeproducts
+#### `/api/session`
+- **Método**: GET
+- **Descripción**: Redirige a la página de inicio de sesión.
+- **Controlador**: `sessionController.redirectLogin`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /api/session` - Redirige a la página de inicio de sesión.
 
-Controlador de productos en tiempo real.
-/test-chat
+#### `/api/session/session`
+- **Método**: GET
+- **Descripción**: Obtiene la sesión actual del usuario.
+- **Controlador**: `sessionController.getSession`
+- **Requisitos de Autorización**: Requiere autenticación.
+- **Ejemplo de Uso**:
+  - `GET /api/session/session` - Obtiene la sesión actual del usuario.
 
-Controlador de chat de prueba.
-/api/session
+#### `/api/session/register`
+- **Método**: GET
+- **Descripción**: Renderiza la página de registro de usuarios.
+- **Controlador**: `sessionController.renderRegister`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /api/session/register` - Renderiza la página de registro de usuarios.
 
-Controlador de sesiones de usuario.
-/loggerTest
+#### `/api/session/register`
+- **Método**: POST
+- **Descripción**: Procesa el formulario de registro de usuarios.
+- **Controlador**: `sessionController.completeRegister`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `POST /api/session/register` - Procesa el formulario de registro de usuarios.
 
-Controlador de pruebas de registro.
-/
+#### `/api/session/failregister`
+- **Método**: GET
+- **Descripción**: Página de error en caso de fallo en el registro.
+- **Controlador**: `sessionController.failRegister`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /api/session/failregister` - Página de error en caso de fallo en el registro.
 
-Redirección a /api/session.
-Rutas de Carritos (cartsRouter)
-POST /
+#### `/api/session/login`
+- **Método**: GET
+- **Descripción**: Renderiza la página de inicio de sesión.
+- **Controlador**: `sessionController.renderLogin`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /api/session/login` - Renderiza la página de inicio de sesión.
 
-Agregar un nuevo carrito.
-GET /
+#### `/api/session/login`
+- **Método**: POST
+- **Descripción**: Procesa el formulario de inicio de sesión.
+- **Controlador**: `sessionController.completeLogin`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `POST /api/session/login` - Procesa el formulario de inicio de sesión.
 
-Obtener todos los carritos.
-GET /:cid
+#### `/api/session/faillogin`
+- **Método**: GET
+- **Descripción**: Página de error en caso de fallo en el inicio de sesión.
+- **Controlador**: `sessionController.failLogin`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /api/session/faillogin` - Página de error en caso de fallo en el inicio de sesión.
 
-Obtener un carrito por su ID.
-POST /:cid/product/:pid
+#### `/api/session/logout`
+- **Método**: GET
+- **Descripción**: Cierra la sesión del usuario.
+- **Controlador**: `sessionController.logOut`
+- **Requisitos de Autorización**: Requiere autenticación.
+- **Ejemplo de Uso**:
+  - `GET /api/session/logout` - Cierra la sesión del usuario.
 
-Agregar un producto a un carrito.
-DELETE /:cid/product/:pid
+#### `/api/session/current`
+- **Método**: GET
+- **Descripción**: Visualiza el perfil del usuario actual.
+- **Controlador**: `sessionController.viewPerfil`
+- **Requisitos de Autorización**: Requiere autenticación.
+- **Ejemplo de Uso**:
+  - `GET /api/session/current` - Visualiza el perfil del usuario actual.
 
-Eliminar un producto de un carrito.
-PUT /:cid
+#### `/api/session/github`
+- **Método**: GET
+- **Descripción**: Inicia sesión con GitHub.
+- **Controlador**: `passport.authenticate('github', { scope: ['user:email'] })`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /api/session/github` - Inicia sesión con GitHub.
 
-Actualizar productos en un carrito.
-PUT /:cid/product/:pid
+#### `/api/session/githubcallback`
+- **Método**: GET
+- **Descripción**: Callback de inicio de sesión con GitHub.
+- **Controlador**: `passport.authenticate('github', { failureRedirect: '/login' })`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /api/session/githubcallback` - Callback de inicio de sesión con GitHub.
 
-Actualizar la cantidad de un producto en un carrito.
-DELETE /:cid
+#### `/api/session/show`
+- **Método**: GET
+- **Descripción**: Obtiene información de la sesión actual en formato JSON.
+- **Controlador**: `sessionController.sessionJson`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+ 
 
-Eliminar todos los productos de un carrito.
-Rutas de Productos en Página de Inicio (homeRouter)
-GET /
+ - `GET /api/session/show` - Obtiene información de la sesión actual en formato JSON.
 
-Obtener productos en la página de inicio.
-GET /mockModule
+#### `/test-chat`
+- **Método**: GET
+- **Descripción**: Permite a los usuarios acceder al chat de prueba.
+- **Controlador**: `testChatController.viewChat`
+- **Requisitos de Autorización**: Requiere autenticación y no ser administrador.
+- **Ejemplo de Uso**:
+  - `GET /test-chat` - Permite a los usuarios acceder al chat de prueba.
 
-Controlador de prueba para módulos simulados.
-POST /:cid/product/:pid
+#### `/api/users`
+- **Método**: GET
+- **Descripción**: Obtiene la lista de todos los usuarios registrados.
+- **Controlador**: `usersController.getAllUsers`
+- **Requisitos de Autorización**: Requiere ser administrador.
+- **Ejemplo de Uso**:
+  - `GET /api/users` - Obtiene la lista de usuarios registrados.
 
-Agregar un producto a un carrito en la página de inicio.
-GET /:pid
+#### `/api/users`
+- **Método**: DELETE
+- **Descripción**: Elimina usuarios antiguos.
+- **Controlador**: `usersController.deleteOldUsers`
+- **Requisitos de Autorización**: Requiere ser administrador.
+- **Ejemplo de Uso**:
+  - `DELETE /api/users` - Elimina usuarios antiguos.
 
-Obtener un producto por su ID.
-GET /carts/:cid
+#### `/api/users/:uid/documents`
+- **Método**: POST
+- **Descripción**: Sube documentos (identificación, comprobante de domicilio, comprobante de estado de cuenta) para un usuario.
+- **Controlador**: `usersController.uploadDocuments`
+- **Requisitos de Autorización**: Requiere autenticación.
+- **Ejemplo de Uso**:
+  - `POST /api/users/:uid/documents` - Sube documentos para un usuario.
 
-Obtener un carrito por su ID en la página de inicio.
-GET /carts/:cid/purchase
+#### `/api/users/premium/:uid`
+- **Método**: PUT
+- **Descripción**: Cambia el estado de un usuario a premium.
+- **Controlador**: `usersController.volverPremium`
+- **Requisitos de Autorización**: Requiere ser administrador.
+- **Ejemplo de Uso**:
+  - `PUT /api/users/premium/:uid` - Cambia el estado de un usuario a premium.
 
-Proceso de compra en la página de inicio.
-Ruta de Registro de Actividad de Registro (loggerRouter)
-GET /
-Controlador para registrar actividades y niveles de registro.
-Rutas de Productos (productsRouter)
-GET /
+#### `/api/products`
+- **Método**: GET
+- **Descripción**: Obtiene la lista de productos.
+- **Controlador**: `productsController.getProducts`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /api/products` - Obtiene la lista de productos.
 
-Obtener todos los productos.
-GET /:pid
+#### `/api/products/:pid`
+- **Método**: GET
+- **Descripción**: Obtiene un producto por su ID.
+- **Controlador**: `productsController.getProductById`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /api/products/:pid` - Obtiene un producto por su ID.
 
-Obtener un producto por su ID.
-POST /
+#### `/api/products`
+- **Método**: POST
+- **Descripción**: Agrega un nuevo producto.
+- **Controlador**: `productsController.addProduct`
+- **Requisitos de Autorización**: Requiere ser administrador.
+- **Ejemplo de Uso**:
+  - `POST /api/products` - Agrega un nuevo producto.
 
-Agregar un nuevo producto.
-PUT /:pid
+#### `/api/products/:pid`
+- **Método**: PUT
+- **Descripción**: Actualiza un producto por su ID.
+- **Controlador**: `productsController.updateProduct`
+- **Requisitos de Autorización**: Requiere ser administrador.
+- **Ejemplo de Uso**:
+  - `PUT /api/products/:pid` - Actualiza un producto por su ID.
 
-Actualizar un producto existente.
-DELETE /:pid
+#### `/api/products/:pid`
+- **Método**: DELETE
+- **Descripción**: Elimina un producto por su ID.
+- **Controlador**: `productsController.deleteProduct`
+- **Requisitos de Autorización**: Requiere ser administrador.
+- **Ejemplo de Uso**:
+  - `DELETE /api/products/:pid` - Elimina un producto por su ID.
 
-Eliminar un producto por su ID.
-Rutas de Productos en Tiempo Real (realTimeProdsRouters)
-GET /
+#### `/realtimeproducts`
+- **Método**: GET
+- **Descripción**: Obtiene la lista de productos en tiempo real (solo para usuarios premium o administradores).
+- **Controlador**: `realTimeProductsController.getProducts`
+- **Requisitos de Autorización**: Requiere ser usuario premium o administrador.
+- **Ejemplo de Uso**:
+  - `GET /realtimeproducts` - Obtiene la lista de productos en tiempo real.
 
-Obtener productos en tiempo real.
-POST /
+#### `/realtimeproducts`
+- **Método**: POST
+- **Descripción**: Agrega un nuevo producto en tiempo real (solo para usuarios autenticados).
+- **Controlador**: `realTimeProductsController.addProductRealTime`
+- **Requisitos de Autorización**: Requiere autenticación.
+- **Ejemplo de Uso**:
+  - `POST /realtimeproducts` - Agrega un nuevo producto en tiempo real.
 
-Agregar un producto en tiempo real.
-Rutas de Recuperación de Correo Electrónico (recoverEmailRouter)
-GET /recoverPass
+#### `/carts`
+- **Método**: POST
+- **Descripción**: Crea un carrito de compras.
+- **Controlador**: `cartsController.addCart`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `POST /carts` - Crea un carrito de compras.
 
-Controlador para recuperar una contraseña.
-GET /
+#### `/carts`
+- **Método**: GET
+- **Descripción**: Obtiene la lista de todos los carritos de
 
-Controlador para renderizar la página de recuperación de contraseña.
-POST /recoverPass
+ compras.
+- **Controlador**: `cartsController.getAllCarts`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /carts` - Obtiene la lista de carritos de compras.
 
-Controlador para enviar una contraseña recuperada por correo electrónico.
-POST /
+#### `/carts/:cid`
+- **Método**: GET
+- **Descripción**: Obtiene un carrito de compras por su ID.
+- **Controlador**: `cartsController.getCartById`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /carts/:cid` - Obtiene un carrito de compras por su ID.
 
-Controlador para enviar un mensaje por correo electrónico.
-Rutas de Sesión de Usuario (sessionRouter)
-GET /
+#### `/carts/:cid/product/:pid`
+- **Método**: POST
+- **Descripción**: Agrega un producto a un carrito de compras.
+- **Controlador**: `cartsController.addProductToCart`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `POST /carts/:cid/product/:pid` - Agrega un producto a un carrito de compras.
 
-Redirección al inicio de sesión.
-GET /session
+#### `/carts/:cid/product/:pid`
+- **Método**: DELETE
+- **Descripción**: Elimina un producto de un carrito de compras.
+- **Controlador**: `cartsController.deleteProductFromCart`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `DELETE /carts/:cid/product/:pid` - Elimina un producto de un carrito de compras.
 
-Controlador de sesión de usuario.
-GET /register
+#### `/carts/:cid`
+- **Método**: PUT
+- **Descripción**: Actualiza los productos de un carrito de compras.
+- **Controlador**: `cartsController.updateProductsOfCart`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `PUT /carts/:cid` - Actualiza los productos de un carrito de compras.
 
-Controlador para mostrar la página de registro.
-POST /register
+#### `/carts/:cid/product/:pid`
+- **Método**: PUT
+- **Descripción**: Actualiza la cantidad de un producto en un carrito de compras.
+- **Controlador**: `cartsController.updateProductQuantityInCart`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `PUT /carts/:cid/product/:pid` - Actualiza la cantidad de un producto en un carrito de compras.
 
-Controlador para completar el registro de usuario.
-GET /failregister
+#### `/carts/:cid`
+- **Método**: DELETE
+- **Descripción**: Elimina todos los productos de un carrito de compras.
+- **Controlador**: `cartsController.deleteAllProductsFromCart`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `DELETE /carts/:cid` - Elimina todos los productos de un carrito de compras.
 
-Controlador para el caso de registro fallido.
-GET /login
+#### `/products`
+- **Método**: GET
+- **Descripción**: Obtiene la lista de productos.
+- **Controlador**: `homeController.getProducts`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /products` - Obtiene la lista de productos.
 
-Controlador para mostrar la página de inicio de sesión.
-POST /login
+#### `/products/mockModule`
+- **Método**: GET
+- **Descripción**: Carga un módulo de prueba.
+- **Controlador**: `homeController.mockModule`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /products/mockModule` - Carga un módulo de prueba.
 
-Controlador para completar el inicio de sesión de usuario.
-GET /faillogin
+#### `/products/:cid/product/:pid`
+- **Método**: POST
+- **Descripción**: Agrega un producto a un carrito de compras.
+- **Controlador**: `homeController.addProductToCart`
+- **Requisitos de Autorización**: Requiere autenticación y no ser administrador.
+- **Ejemplo de Uso**:
+  - `POST /products/:cid/product/:pid` - Agrega un producto a un carrito de compras.
 
-Controlador para el caso de inicio de sesión fallido.
-GET /logout
+#### `/products/:pid`
+- **Método**: GET
+- **Descripción**: Obtiene un producto por su ID.
+- **Controlador**: `homeController.getProductById`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /products/:pid` - Obtiene un producto por su ID.
 
-Controlador para cerrar la sesión de usuario.
-GET /current
+#### `/products/carts/:cid`
+- **Método**: GET
+- **Descripción**: Obtiene un carrito de compras por su ID.
+- **Controlador**: `homeController.getCartById`
+- **Requisitos de Autorización**: Requiere autenticación y no ser administrador.
+- **Ejemplo de Uso**:
+  - `GET /products/carts/:cid` - Obtiene un carrito de compras por su ID.
 
-Controlador para ver el perfil del usuario actual.
-GET /github
+#### `/products/carts/:cid/purchase`
+- **Método**: GET
+- **Descripción**: Procesa la compra de un carrito de compras.
+- **Controlador**: `homeController.purchase`
+- **Requisitos de Autorización**: Requiere autenticación y no ser administrador.
+- **Ejemplo de Uso**:
+  - `GET /products/carts/:cid/purchase` - Procesa la compra de un carrito de compras.
 
-Controlador para autenticación de GitHub.
-GET /githubcallback
-
-Controlador para la devolución de llamada de autenticación de GitHub.
-GET /show
-
-Controlador para mostrar la sesión de usuario en formato JSON.
-Rutas de Usuarios (usersRouter)
-GET /
-
-Obtener todos los usuarios (requiere privilegios de administrador).
-DELETE /
-
-Eliminar usuarios antiguos (requiere privilegios de administrador).
-POST /:uid/documents
-
-Subir documentos de usuario.
-PUT /premium/:uid
-
-Cambiar el estado de un usuario a premium (requiere privilegios de administrador).
+#### `/loggerTest`
+- **Método**: GET
+- **Descripción**: Realiza pruebas de registro (logs) en el servidor.
+- **Controlador**: `loggerController.viewLoggerTest`
+- **Requisitos de Autorización**: No se requiere autorización.
+- **Ejemplo de Uso**:
+  - `GET /loggerTest` - Realiza pruebas de registro (logs) en el servidor.
