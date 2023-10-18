@@ -23,11 +23,10 @@
         <li><a class="dropdown-item sort-link" href="#" data-sort="asc">Ascendente</a></li>
       </ul>
     </div>
-    <button class="btn-cart" data-cart-id="{{pagina.cart}}" onclick="handleVerCartClick('{{pagina.cart}}')">Ver carrito</button>
+    <button class="btn-cart" data-cart-id="{{pagina.user.cart}}" onclick="handleVerCartClick('{{pagina.user.cart}}')">Ver carrito</button>
     <br>
     <a href="/api/session/current">bienvenido {{#if pagina.user.isAdmin}}{{pagina.user.role}}{{else}}{{pagina.user.firstName}}{{/if}}, revisa tu perfil</a>
     <br>
-    <a href='/api/users/{{pagina.user._id}}/documentsForm'>Volverse premium<a></a>
   </header>
 
   {{#if pagina.pagination.hasPrevPage}}

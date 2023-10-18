@@ -1,5 +1,6 @@
 <div>
-  <h1 class="user-owner" user-owner-id="{{user.email}}">Bienvenido {{#if user.firstName}}{{user.firstName}}{{else}}{{user.role}}{{/if}}</h1>
+  <h1 class="user-owner" user-owner-id="{{user.email}}">Bienvenido {{#if
+    user.firstName}}{{user.firstName}}{{else}}{{user.role}}{{/if}}</h1>
   <section>
     <ul id="ejemplo">
       {{#each products}}
@@ -50,7 +51,13 @@
         <div>
           <label for="category">Categoría:</label>
           <br />
-          <input value="" type="text" id="form-category" style="margin-bottom: 16px" />
+          <select id="form-category" style="margin-bottom: 16px">
+            <option value="Ropa">Ropa</option>
+            <option value="Caramelos">Caramelos</option>
+            <option value="Electronicos">Electronicos</option>
+            <option value="Muebles">Muebles</option>
+            <option value="Pop">Pop</option>
+          </select>
         </div>
         <div>
           <label for="file">Archivo:</label>

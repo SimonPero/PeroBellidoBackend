@@ -8,32 +8,34 @@ Edad:
 <br />
 Ultima Conexión: {{user.last_connection}}
 <br />
+{{#if user.role === "premium"}}
 {{#each user.documents}}
-  <br />
-  {{this.name }}:  {{this.reference}}
-  <br />
+<br />
+{{this.name}}: {{this.reference}}
+<br />
 {{/each}}
+{{/if}}
+
 <br />
 <section>
- <form class="form-custom" action="/api/users/{{user._id}}/documents" method="post" enctype="multipart/form-data">
-                <label for="identificacion">Identificación:</label>
-                <input type="file" name="identificacion" id="identificacion"><br>
+  <form class="form-custom" action="/api/users/{{user._id}}/documents" method="post" enctype="multipart/form-data">
+    <label for="identificacion">Identificación:</label>
+    <input type="file" name="identificacion" id="identificacion"><br>
 
-                <label for="comprobanteDomicilio">Comprobante de domicilio:</label>
-                <input type="file" name="comprobanteDomicilio" id="comprobanteDomicilio"><br>
+    <label for="comprobanteDomicilio">Comprobante de domicilio:</label>
+    <input type="file" name="comprobanteDomicilio" id="comprobanteDomicilio"><br>
 
-                <label for="comprobanteEstadoCuenta">Comprobante de estado de cuenta:</label>
-                <input type="file" name="comprobanteEstadoCuenta" id="comprobanteEstadoCuenta"><br>
+    <label for="comprobanteEstadoCuenta">Comprobante de estado de cuenta:</label>
+    <input type="file" name="comprobanteEstadoCuenta" id="comprobanteEstadoCuenta"><br>
 
-                <button type="submit">Subir archivos</button>
-            </form>
+    <button type="submit">Subir archivos</button>
+  </form>
 </section>
 <br />
 <a href='/realtimeproducts'>Crear Productos<a>
-{{#if user.isAdmin}}
-  <a href="/api/users">Panel de Usuarios</a>
-{{/if}}
-<a href="/products">Volver a los Productos</a>
-<br />
-<a href='/api/session/logout'>Salir!</a>
-
+    {{#if user.isAdmin}}
+    <a href="/api/users">Panel de Usuarios</a>
+    {{/if}}
+    <a href="/products">Volver a los Productos</a>
+    <br />
+    <a href='/api/session/logout'>Salir!</a>
