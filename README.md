@@ -38,8 +38,8 @@ Este proyecto es un API básica que sigue las consignas de la tercera preEntrega
 
 ## Endpoints de la app
 
-Rutas Principales
-/recoverEmail
+##Rutas Principales
+- /recoverEmail
 
 Controlador de recuperación de correo electrónico.
 /api/users
