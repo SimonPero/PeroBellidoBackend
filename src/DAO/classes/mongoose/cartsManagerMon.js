@@ -58,7 +58,7 @@ export default class CartsManagerMonDao {
 
   async getAllCartsAndPopulate(){ //revisar
   try {
-    const carts = await CartModel.find().populate('products');
+    const carts = await CartModel.find().populate('products').lean()
     return returnMessage("success","carts successfully found and populated", carts, __dirname, "getAllCartsAndPopulate") 
   } catch (error) {
     const errorMessage = CustomError.createError({

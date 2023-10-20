@@ -127,7 +127,7 @@ class CartsController {
             const carts = await cartsManager.getAllCarts();
             return res.status(HTTPStatus.OK).json({
                 status: 'success',
-                payload: { carts: carts.data }
+                payload: { carts: carts }
             });
         } catch (error) {
             if (error.message) {

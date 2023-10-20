@@ -1,4 +1,4 @@
-<div>
+<div class="cart" data-cart-id="{{cart.cartId}}">
   {{#if cart.products.length}}
   <h1>Detalles del carrito</h1>
   <section class="container">
@@ -10,14 +10,19 @@
         <p>Precio: {{this.idProduct.price}}</p>
         <p>Categoria: {{this.idProduct.category}}</p>
         <p>Cantidad: {{this.quantity}}</p>
+        <button onclick="eliminarProducto('{{this.idProduct._id}}')">X</button>
       </li>
       {{/each}}
     </ul>
     <br>
     <button onclick="realizarCompra('{{cart.cartId}}')"> Comprar </button>
+    <br>
+    <a href="/products">Volver a Home</a>
   </section>
   {{else}}
   <p>No products found.</p>
+  <br>
+  <a href="/products">Volver a Home</a>
   {{/if}}
 </div>
 <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>

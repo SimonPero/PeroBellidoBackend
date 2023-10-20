@@ -43,7 +43,7 @@ export default class TicketManagerMon {
                             idProduct: product.idProduct,
                             subtotal: subtotal,
                             title: productData.data.title,
-                            quantityPurchased: quantityPurchased, 
+                            quantityPurchased: quantityPurchased,
                         });
                     }
 
@@ -51,23 +51,26 @@ export default class TicketManagerMon {
                         const cantidadNoComprada = product.quantity - quantityPurchased
                         productsNotPurchased.push({
                             idProduct: product.idProduct,
-                            quantityNotPurchased: cantidadNoComprada, 
+                            quantityNotPurchased: cantidadNoComprada,
                         });
                     }
-                } 
+                }
             }
+            let ticketNotPurchased = {}
+            let ticketPurchased = {}
             if (productsPurchased.length > 0) {
                 const totalAmount = productsPurchased.reduce((total, product) => total + product.subtotal, 0);
                 const purchaserName = user;
                 const code = this.generateTicketCode()
-                const ticket = await ticketManagerMonDao.successfulTicket(code, totalAmount, purchaserName, productsPurchased)
-                await ticket.save();
+                const goodTicket = await ticketManagerMonDao.successfulTicket(code, totalAmount, purchaserName, productsPurchased)
+                ticketPurchased = goodTicket
                 logger.debug("Products purchased successfully");
                 if (productsNotPurchased.length > 0) {
-                    await this.notPurchasedProducts(cartId, productsNotPurchased, user);
+                    const badTicket = await this.notPurchasedProducts(cartId, productsNotPurchased, user);
+                    ticketNotPurchased = badTicket
                 }
             } else {
-                const respuesta = { mensaje: "No se realizó ninguna compra" };
+                const respuesta = { canceled: true };
                 return (respuesta)
             }
 
@@ -75,13 +78,14 @@ export default class TicketManagerMon {
             await cartManager.updateProductsOfCart(cartId, productsNotPurchased.map((product) => ({ idProduct: product.idProduct, quantity: product.quantityNotPurchased })));
 
             if (productsNotPurchased.length > 0) {
-                return returnMessage("warn", "Algunos objetos no han sido comprados", null,__dirname ,"comprarProductos")
+                returnMessage("warn", "Algunos objetos no han sido comprados", ticketNotPurchased, __dirname, "comprarProductos")
+                return ticketNotPurchased
             } else {
-                return  returnMessage("success", "Compra Exitosa", null,__dirname ,"comprarProductos")
+                returnMessage("success", "Compra Exitosa", ticketPurchased, __dirname, "comprarProductos")
+                return ticketPurchased
             }
         } catch (error) {
-            
-            throw returnMessage("failure", error.message||"the product sell has not been successful", error.data||null, __dirname, "comprarProductos")
+            throw returnMessage("failure", error.message || "the product sell has not been successful", error.data || null, __dirname, "comprarProductos")
         }
     }
 
@@ -91,7 +95,7 @@ export default class TicketManagerMon {
             logger.debug("Revising not bought products ...");
             const code = this.generateTicketCode()
             const notPurchasedTicket = await ticketManagerMonDao.unsuccessfulTicekt(code, purchaserName, productsNotPurchased)
-            await notPurchasedTicket.save();
+            return notPurchasedTicket
         } catch (error) {
             logger.error(`Ticket Service Error: ${error}`);
         }

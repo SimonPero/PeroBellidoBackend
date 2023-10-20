@@ -33,38 +33,41 @@ export default class CartsManager {
 
   async addProductToCart(cartId, productId, user) {
     try {
-      const cart = await cartsManagerMonDao.getCartById(cartId)
-      const product = await productManager.getProductById(productId)
+      const cart = await cartsManagerMonDao.getCartById(cartId);
+      const product = await productManager.getProductById(productId);
+  
       if (product.data.owner === user.email) {
         const errorMessage = CustomError.createError({
           name: "NotAvailableForPurchase",
-          message: " can not buy own products",
-          cause: `someone was trying to buy one of his own products`,
+          message: "No puedes comprar tus propios productos",
+          cause: "Alguien intentaba comprar uno de sus propios productos",
           code: EErros.PRODUCT_NOT_AVAILABLE_ERROR,
-        })
-        throw returnMessage("warn", errorMessage.message, errorMessage, __dirname, "addProductToCart")
+        });
+        throw returnMessage("warn", errorMessage.message, errorMessage, __dirname, "addProductToCart");
       }
-      const existingProduct = cart.data.products.find((p) => new Types.ObjectId(p.idProduct).equals(new Types.ObjectId(productId)));
+  
+      const existingProduct = cart.data.products.find((p) => p.idProduct.toString() === productId);
+  
       if (existingProduct) {
-        if (product.stock > existingProduct.quantity) {
+        if (product.data.stock > existingProduct.quantity) {
           existingProduct.quantity++;
-        } else {
+          await cart.data.save(); // Guardar el carrito después de modificar la cantidad.
+        } else if(product.stock === 0){
           const errorMessage = CustomError.createError({
             name: "NotAvailableForPurchase",
-            message: " you can not buy this product",
-            cause: `the stock is this product is zero`,
+            message: "No puedes comprar este producto",
+            cause: "El stock de este producto es cero",
             code: EErros.PRODUCT_NOT_AVAILABLE_ERROR,
-          })
-          returnMessage("warn", errorMessage.message, errorMessage, __dirname, "addProductToCart")
+          });
+          throw returnMessage("warn", errorMessage.message, errorMessage, __dirname, "addProductToCart");
         }
       } else {
         cart.data.products.push({ idProduct: productId, quantity: 1 });
+        await cart.data.save(); // Guardar el carrito después de agregar un nuevo producto.
       }
-      await cart.data.save();
-
+  
       return returnMessage("success", 'Producto agregado al carrito con éxito.', null, __dirname, "addProductToCart");
     } catch (error) {
-
       throw returnMessage("warn", error.message, error.data, __dirname, "addProductToCart");
     }
   }
@@ -72,8 +75,7 @@ export default class CartsManager {
   async deleteProductFromCart(cartId, productId) {
     try {
       const cart = await cartsManagerMonDao.getCartById(cartId)
-
-      const productIndex = cart.products.findIndex((p) => p.idProduct.toString() === productId);
+      const productIndex = cart.data.products.findIndex((p) => p.idProduct.toString() === productId);
       if (productIndex !== -1) {
         cart.data.products.splice(productIndex, 1);
         await cart.data.save();

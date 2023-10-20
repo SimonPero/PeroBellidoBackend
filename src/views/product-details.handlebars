@@ -1,6 +1,6 @@
-<div>
+
+<div class="cart" data-cart-id="{{cart}}">
   <h3>{{product.title}}</h3>
-  <h3>{{cart}}</h3>
   <p>Descripción: {{product.description}}</p>
   <p>Precio: {{product.price}}</p>
   <p>Categoría: {{product.category}}</p>
@@ -8,8 +8,8 @@
   <img src="/public/{{product.picture}}" alt="">
   <button class="btn-agregar" onclick="handleAgregarButtonClick('{{product._id}}')">Agregar al carrito</button>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-  integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<br>
+<a href="/products">Volver a Home</a>
+<br>
 <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
-<script src="/socket.io/socket.io.js"></script>
-<script src="public/js/productos.js"></script>
+<script src="/../public/js/productDetail.js"></script>
