@@ -1,10 +1,10 @@
 import express from "express";
 import { homeController } from "../controllers/home.controller.js";
-import { isAdminDeny, isUser, isYourCart } from '../middlewares/middleswares.js';
+import { isAdminDeny, isUser,isAdmin, isYourCart } from '../middlewares/middleswares.js';
 export const homeRouter = express.Router();
 
 homeRouter.get("/", homeController.getProducts);
-homeRouter.get("/mockModule", homeController.mockModule);
+homeRouter.get("/mockModule", isAdmin, homeController.mockModule);
 homeRouter.post("/:cid/product/:pid", isUser, isAdminDeny, homeController.addProductToCart);
 homeRouter.get("/:pid", homeController.getProductById);
 homeRouter.get("/carts/:cid", isUser, isAdminDeny, isYourCart, homeController.getCartById);

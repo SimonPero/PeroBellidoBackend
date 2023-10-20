@@ -17,6 +17,8 @@ Ultima Conexión: {{user.last_connection}}
 
 
 <br />
+{{#unless user.isAdmin}}
+<h2>Volverse Premium</h2>
 <section>
   <form class="form-custom" action="/api/users/{{user._id}}/documents" method="post" enctype="multipart/form-data">
     <label for="identificacion">Identificación:</label>
@@ -31,6 +33,7 @@ Ultima Conexión: {{user.last_connection}}
     <button type="submit">Subir archivos</button>
   </form>
 </section>
+{{/unless}}
 <br />
 <a href='/realtimeproducts'>Crear Productos<a>
     {{#if user.isAdmin}}

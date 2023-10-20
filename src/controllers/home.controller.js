@@ -86,9 +86,8 @@ class HomeController {
         const cart = req.params.cid;
         const userName = req.session.user.firstName;
         try {
-            const compra = await ticketManager.comprarProductos(cart, userName);
-            const compraRealizada = compra.message;
-            res.status(HTTPStatus.OK).send(compraRealizada);
+            const ticket = await ticketManager.comprarProductos(cart, userName)
+            res.status(HTTPStatus.OK).render("ticketDetails",{ticket: ticket})
         } catch (error) {
             if (error.message) {
                 res.status(HTTPStatus.BAD_REQUEST).render("error", { error: error.message });

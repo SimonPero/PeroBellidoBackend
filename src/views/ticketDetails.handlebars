@@ -1,0 +1,11 @@
+{{#if ticket.canceled}}
+  <p>La compra no ha sido realizada</p>
+{{else}}
+  <h1>Ticket De Compra</h1>
+  <p><strong>Code:</strong> {{ticket.code}}</p>
+  <p><strong>Fecha De La Compra:</strong> {{ticket.purchase_datetime}}</p>
+  <p><strong>Precio Total:</strong> {{ticket.totalAmount}}</p>
+  <p><strong>Comprador:</strong> {{ticket.purchaser}}</p>
+  <p><strong>compra exitosa</strong></p>
+{{/if}}
+<a href="/products">Volver a Home</a>
