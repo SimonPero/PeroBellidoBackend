@@ -13,7 +13,7 @@ async function eliminarProducto(liId) {
             });
         } catch (error) {
             // Manejo de errores: Si ocurre algún error durante la eliminación, no se maneja explícitamente en esta función, 
-            // por lo que cualquier error simplemente se captura, pero no se realiza ninguna acción adicional.
+            // por lo que cualquier error simplemente se captura, pero no se realiza ninguna acción adicional..
         }
     }
     
