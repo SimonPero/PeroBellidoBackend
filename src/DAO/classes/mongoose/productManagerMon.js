@@ -1,7 +1,7 @@
 import { ProductModel } from "../../models/product.model.js";
 import EErros from "../../../services/errors/enum-errors.service.js";
 import CustomError from "../../../services/errors/custom-error.service.js";
-import { returnMessage } from "../../../utils.js";
+import { returnMessage } from "../../../../utils/utils.js";
 import { fileURLToPath } from 'url';
 import envConfig from "../../../config/env.config.js";
 

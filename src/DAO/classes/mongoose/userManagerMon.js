@@ -2,7 +2,7 @@
 import { UserModel } from "../../models/user.model.js";
 import CustomError from "../../../services/errors/custom-error.service.js";
 import EErros from "../../../services/errors/enum-errors.service.js";
-import { returnMessage } from "../../../utils.js";
+import { returnMessage } from "../../../../utils/utils.js";
 import { fileURLToPath } from 'url';
 
 const __dirname = fileURLToPath(import.meta.url)

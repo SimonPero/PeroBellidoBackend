@@ -1,13 +1,17 @@
-import express from "express"
+import express from "express";
 import { recoverEmailController } from "../controllers/recoverEmail.controller.js";
-import { RecoverCodesMongoose } from "../DAO/models/recover-code.model.js";
-import { createHash } from "../utils.js";
-import UserManagerMon from "./../services/userManagerMon.service.js"
 
-const userManagerMon = new UserManagerMon()
-export const recoverEmailRouter = express.Router()
+// Crea un enrutador de Express para las rutas relacionadas con la recuperación de contraseñas y el envío de correos electrónicos
+export const recoverEmailRouter = express.Router();
 
-recoverEmailRouter.get("/recoverPass", recoverEmailController.passRecoveryGet)
-recoverEmailRouter.get("/", recoverEmailController.renderRecoveryPass)
-recoverEmailRouter.post("/recoverPass", recoverEmailController.passRecoveryPost)
-recoverEmailRouter.post("/", recoverEmailController.sendMessageToEmail)
+// Ruta para obtener la página de recuperación de contraseña (GET)
+recoverEmailRouter.get("/recoverPass", recoverEmailController.passRecoveryGet);
+
+// Ruta para obtener la página de recuperación de contraseña (GET)
+recoverEmailRouter.get("/", recoverEmailController.renderRecoveryPass);
+
+// Ruta para enviar una solicitud de recuperación de contraseña (POST)
+recoverEmailRouter.post("/recoverPass", recoverEmailController.passRecoveryPost);
+
+// Ruta para enviar un mensaje de correo electrónico (POST)
+recoverEmailRouter.post("/", recoverEmailController.sendMessageToEmail);

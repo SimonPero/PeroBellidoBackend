@@ -1,3 +1,4 @@
+// Función que genera un mensaje de error con información sobre propiedades faltantes o inválidas en un objeto de usuario.
 export const generateUserErrorInfo = (user) => {
     return `
     Una o más propiedades están incompletas o inválidas, o ya existe el usuario!!!

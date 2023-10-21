@@ -3,17 +3,17 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { connect } from "mongoose";
 import bcrypt from 'bcrypt';
-import envConfig from "./config/env.config.js";
+import envConfig from "../src/config/env.config.js";
 import { faker } from "@faker-js/faker";
 import winston from "winston";
 
-// Multer
+// Configuración de Multer para el almacenamiento de documentos
 const documentStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, "/public/images/temp"));
   },
-
   filename: (req, file, cb) => {
+    // Genera un nombre de archivo personalizado
     const fieldname = file.fieldname;
     const originalname = file.originalname;
     const customFilename = `${fieldname}-${originalname}`;
@@ -21,52 +21,49 @@ const documentStorage = multer.diskStorage({
   },
 });
 
+// Configuración de Multer para el almacenamiento de productos
 const productStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, "/public/images/temp"));
   },
   filename: (req, file, cb) => {
+    // Usa el nombre original del archivo
     cb(null, file.originalname);
   },
 });
 
+// Crea objetos multer para subir documentos y productos
 export const documentUploader = multer({
   storage: documentStorage
 });
-
-
-
 export const productUploader = multer({ storage: productStorage });
 
-// https://flaviocopes.com/fix-dirname-not-defined-es-module-scope/
-
+// Obtiene la ruta actual (__dirname) para usar en el proyecto
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
-
-//Connect To Mongo
-
+// Conexión a MongoDB
 export async function connectMongo() {
   try {
-    logger.debug("Connecting to the MongoDB...");
+    logger.debug("Conectando a MongoDB...");
     await connect(envConfig.mongoUrl);
-    logger.info("Connected to the MongoDB!");
+    logger.info("Conectado a MongoDB!");
   } catch (e) {
-    logger.error("Error connecting to the MongoDB...");
+    logger.error("Error al conectar a MongoDB...");
     logger.error(e);
   }
 }
 
+// Funciones para el hash y validación de contraseñas
 export const createHash = (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 export const isValidPassword = (password, hashPassword) => bcrypt.compareSync(password, hashPassword);
 
-//faker-js
-
+// Configuración y generación de datos falsos con faker-js
 faker.constructor = 'es';
-
 const validCategories = ['Ropa', 'Caramelos', 'Electronicos', 'Muebles', 'Pop'];
+
 export const generateUser = () => {
-  const numOfProductsInCart = faker.number.int({ min: 1, max: 5 }); // Adjust the range as needed
+  const numOfProductsInCart = faker.number.int({ min: 1, max: 5 });
   const cartProducts = [];
 
   for (let i = 0; i < numOfProductsInCart; i++) {
@@ -80,8 +77,8 @@ export const generateUser = () => {
     password: faker.internet.password(),
     isAdmin: false,
     age: faker.number.int({ min: 13, max: 100 }),
-    role: 'usuario', // Default role
-    cart: cartProducts, // Add generated products to the user's cart
+    role: 'usuario',
+    cart: cartProducts,
   };
 };
 
@@ -99,7 +96,7 @@ export const generateProduct = () => {
   };
 };
 
-//logger
+// Configuración del registro de eventos con winston
 const customFormat = winston.format.combine(
   winston.format.timestamp(),
   winston.format.printf(({ timestamp, level, message }) => {
@@ -123,8 +120,7 @@ const productionLogger = winston.createLogger({
   format: customFormat,
 });
 
-
-
+// Inicialización del logger
 export function initLogger() {
   if (process.env.NODE_ENV === "production") {
     return productionLogger;
@@ -135,40 +131,37 @@ export function initLogger() {
 
 export let logger = initLogger()
 
+// Middleware para agregar el logger a las solicitudes
 export const addLogger = (req, res, next) => {
   req.logger = logger;
   next();
 };
 
-//FixedResponseMessageForReturn
-
+// Función para generar respuestas personalizadas
 export function returnMessage(status, message, data, filename, functionName) {
   const timestamp = new Date().toISOString();
 
-  // Validar el estado
+  // Valida el estado
   const validStatus = ['success', 'warning', 'failure'];
   if (!validStatus.includes(status)) {
     status = 'unknown';
   }
 
-  const messageObject = { timestamp, status, message, data, filename, functionName};
+  const messageObject = { timestamp, status, message, data, filename, functionName };
 
-  // Loggea el mensaje con el nivel adecuado
+  // Registra el mensaje con el nivel adecuado
   switch (status) {
     case 'success':
       logger.info(messageObject.status + " Time: " + messageObject.timestamp + " Message: " + messageObject.message);
       logger.info("FilePathUrl: " + filename + " FunctionName: " + functionName)
       break;
     case 'warning':
-
       logger.warn(messageObject);
       break;
     case 'failure':
-      
       logger.error("CustomError - " + data.name || "error" + ": " + message + "  Time: " + messageObject.timestamp);
       logger.error("ErrorMessage: " + message + " Cause: " + data.cause);
       logger.error("FilePathUrl: " + filename + " FunctionName: " + functionName + " Code: " + data.code);
-
       break;
     default:
       logger.error('Unknown status message:', messageObject);

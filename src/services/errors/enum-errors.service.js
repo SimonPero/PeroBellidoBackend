@@ -1,3 +1,4 @@
+//Lista para los errores enumerados customizados
 const EErros = {
     ROUTING_ERROR: 1,
     INVALID_TYPES_ERROR: 2,
@@ -13,6 +14,7 @@ const EErros = {
     UNAUTHORIZED_PRODUCT_DELETION_ERROR:12,
     PRODUCT_CODE_ALREADY_EXISTS_ERROR:13,
     USER_NOT_CREATED:14,
+    PRODUCT_NOT_AVAILABLE_ERROR:15,
   };
   
   export default EErros;

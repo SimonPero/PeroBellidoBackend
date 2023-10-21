@@ -1,6 +1,6 @@
 import passport from 'passport';
 import local from 'passport-local';
-import { createHash, isValidPassword } from '../utils.js';
+import { createHash, isValidPassword } from '../../utils/utils.js';
 import UserManagerMon from '../services/userManagerMon.service.js';
 import EErros from '../services/errors/enum-errors.service.js';
 import CustomError from '../services/errors/custom-error.service.js';
@@ -9,7 +9,7 @@ import GitHubStrategy from 'passport-github2';
 import envConfig from './env.config.js';
 import { generateUserErrorInfo } from '../services/errors/info-error.service.js';
 import CartsManager from '../services/cartsManagerMon.service.js';
-import { returnMessage } from '../utils.js';
+import { returnMessage } from '../../utils/utils.js';
 import { fileURLToPath } from 'url';
 
 const __dirname = fileURLToPath(import.meta.url)
